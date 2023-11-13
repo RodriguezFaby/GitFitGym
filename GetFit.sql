@@ -60,8 +60,7 @@ create table EMPLEADO(
     SALARIO NUMBER NOT NULL,
     EMAIL VARCHAR(50) NOT NULL,
     TELEFONO NUMBER NOT NULL,
-    PUESTO VARCHAR(50) NOT NULL)
-    
+    PUESTO VARCHAR(50) NOT NULL);
 
 create table RESERVAS(
     ID_RESERVA INT NOT NULL PRIMARY KEY,
@@ -118,9 +117,32 @@ insert into MEMBRESIAS values(1,'VIP','Activo','11/11/2023','11/12/2023',1)
 insert into MEMBRESIAS values(2,'STANDARD','Activo','15/10/2023','15/11/2023',2)
 insert into MEMBRESIAS values(3,'VIP','Activo','03/11/2023','03/12/2023',3)
 
+INSERT INTO RESERVAS (ID_RESERVA, FECHA, HORA, ESTADO, ID_CLIENTE)
+VALUES
+    (1, TO_DATE('2023-10-30', 'YYYY-MM-DD'), TO_DATE('14:00', 'HH24:MI:SS'), 'Confirmada', 2),
+    (2, TO_DATE('2023-11-05', 'YYYY-MM-DD'), TO_DATE('09:30', 'HH24:MI:SS'), 'Pendiente', 1),
+    (3, TO_DATE('2023-11-10', 'YYYY-MM-DD'), TO_DATE('18:00', 'HH24:MI:SS'), 'Confirmada', 3);
+    
+INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
+VALUES
+    (1, 'Lunes', TO_DATE('08:30', 'HH24:MI:SS'), TO_DATE('10:00', 'HH24:MI:SS'), 'Clase de Yoga'),
+    (2, 'Martes', TO_DATE('14:00', 'HH24:MI:SS'), TO_DATE('15:30', 'HH24:MI:SS'), 'Entrenamiento Funcional'),
+    (3, 'Miércoles', TO_DATE('18:30', 'HH24:MI:SS'), TO_DATE('20:00', 'HH24:MI:SS'), 'Spinning');
+
+-- Insertar datos de ejemplo en la tabla FACTURA
+INSERT INTO FACTURA (ID_FACTURA, ID_CLIENTE, MONTO, FECHA, DESCRIPCION)
+VALUES
+    (1, 1, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membresía'),
+    (2, 2, 30000, TO_DATE('2023-11-05', 'YYYY-MM-DD'), 'Pago de clases de yoga'),
+    (3, 3, 75000, TO_DATE('2023-11-10', 'YYYY-MM-DD'), 'Pago de entrenamiento personal');
+
 /*Ver los inserts*/
 SELECT * FROM CLIENTE;
 SELECT * FROM MEMBRESIAS;
+SELECT * FROM EMPLEADO;
+SELECT * FROM RESERVAS;
+SELECT * FROM HORARIO;
+SELECT * FROM FACTURA;
 
 
 /*---------SP para insertar clientes-------------------*/
@@ -234,3 +256,61 @@ EXEC DELETE_MEMBRESIA(4)
 
 
 C:\Users\Fabiola\AppData\Roaming\SQL Developer\mywork
+
+-- Cursor para la tabla FACTURA
+    CURSOR c_factura IS
+        SELECT 1 AS ID_FACTURA, 1 AS ID_CLIENTE, 50000 AS MONTO, TO_DATE('2023-10-30', 'YYYY-MM-DD') AS FECHA,
+        'Pago de membresía' AS DESCRIPCION FROM DUAL;
+
+   -- Cursor para la tabla RESERVAS
+    CURSOR c_reservas IS
+        SELECT 1 AS ID_RESERVA, TO_DATE('2023-10-30', 'YYYY-MM-DD') AS FECHA, TO_DATE('14:00', 'HH24:MI') AS HORA,
+        'Confirmada' AS ESTADO, 2 AS ID_CLIENTE FROM DUAL;
+    
+    -- Cursor para la tabla HORARIO
+    CURSOR c_horario IS
+        SELECT 1 AS ID_HORARIO, 'Lunes' AS DIA, TO_DATE('08:30', 'HH24:MI') AS HORA_INICIO, TO_DATE('10:00', 'HH24:MI') AS HORA_FIN,
+        'Clase de Yoga' AS CLASE FROM DUAL;
+    
+BEGIN
+    -- Insertar datos en la tabla RESERVAS
+    FOR reserva IN c_reservas
+    LOOP
+        INSERT INTO RESERVAS (ID_RESERVA, FECHA, HORA, ESTADO, ID_CLIENTE)
+        VALUES (reserva.ID_RESERVA, reserva.FECHA, reserva.HORA, reserva.ESTADO, reserva.ID_CLIENTE);
+    END LOOP;
+
+    COMMIT; -- Confirmar la transacción
+END;
+
+BEGIN
+-- Insertar datos en la tabla HORARIO
+    FOR horario IN c_horario
+    LOOP
+        INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
+        VALUES (horario.ID_HORARIO, horario.DIA, horario.HORA_INICIO, horario.HORA_FIN, horario.CLASE);
+    END LOOP;
+END;
+
+BEGIN
+    -- Insertar datos en la tabla FACTURA
+    FOR factura IN c_factura
+    LOOP
+        INSERT INTO FACTURA (ID_FACTURA, ID_CLIENTE, MONTO, FECHA, DESCRIPCION)
+        VALUES (factura.ID_FACTURA, factura.ID_CLIENTE, factura.MONTO, factura.FECHA, factura.DESCRIPCION);
+    END LOOP;
+END;
+
+-- Crear una vista que incluya la información de la tabla CLIENTE
+CREATE VIEW Vista_Cliente AS
+SELECT
+    ID_CLIENTE,
+    NOMBRE,
+    APELLIDO,
+    FECHAINGRESO,
+    MENSUALIDAD
+FROM CLIENTE;
+
+-- Consulta utilizando la vista
+SELECT * FROM Vista_Cliente;
+
