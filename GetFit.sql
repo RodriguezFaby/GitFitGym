@@ -288,7 +288,7 @@ BEGIN
         DBMS_OUTPUT.PUT_LINE('ID_EMPLEADO: ' || emp_rec.ID_EMPLEADO || ', NOMBRE: ' || emp_rec.NOMBRE);
     END LOOP;
 
-    -- Llamar a la funci√≥n para obtener empleados por salario
+    -- Llamar a la funcion para obtener empleados por salario
     emp_cursor := GET_EMPLEADOS_BY_SALARIO(50000);
 
     -- Usar a trav√©s del cursor y hacer algo con los resultados
@@ -302,12 +302,12 @@ END;
 
 C:\Users\Fabiola\AppData\Roaming\SQL Developer\mywork
 
--- Cursor para la tabla FACTURA
+-- Cursor para la tabla FACTURA donde el monto es de 50000
     CURSOR c_factura IS
         SELECT 1 AS ID_FACTURA, 1 AS ID_CLIENTE, 50000 AS MONTO, TO_DATE('2023-10-30', 'YYYY-MM-DD') AS FECHA,
         'Pago de membres√≠a' AS DESCRIPCION FROM DUAL;
 
-   -- Cursor para la tabla RESERVAS
+   -- Cursor para la tabla RESERVAS confirmada
     CURSOR c_reservas IS
         SELECT 1 AS ID_RESERVA, TO_DATE('2023-10-30', 'YYYY-MM-DD') AS FECHA, TO_DATE('14:00', 'HH24:MI') AS HORA,
         'Confirmada' AS ESTADO, 2 AS ID_CLIENTE FROM DUAL;
@@ -407,7 +407,7 @@ FROM RESERVAS;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Reservas;
 
--- Crear una vista que incluya la informaci√≥n de la tabla FACTURA
+-- Crear una vista que incluya la informacion de la tabla FACTURA
 CREATE VIEW Vista_Factura AS
 SELECT
     ID_FACTURA,
@@ -519,3 +519,36 @@ END;
 
 /*---------------correr el procedimiento---------------*/
 EXEC DELETE_FACTURA(3);
+
+
+-- Leer todos los empleados
+SELECT * FROM EMPLEADO;
+
+-- Leer un empleado especÌfico por ID
+SELECT * FROM EMPLEADO WHERE ID_EMPLEADO = 1;
+
+-- Actualizar informaciÛn de un empleado
+UPDATE EMPLEADO
+SET SALARIO = 55000, ESTADO = 'Inactivo'
+WHERE ID_EMPLEADO = 1;
+
+-- Eliminar un empleado por ID
+DELETE FROM EMPLEADO WHERE ID_EMPLEADO = 1;
+
+--Eliminar empleado inactivo con SP
+CREATE OR REPLACE PROCEDURE EliminarEmpleadoInactivo AS
+BEGIN
+    -- Eliminar empleados inactivos
+    DELETE FROM EMPLEADO WHERE ESTADO = 'Inactivo';
+    
+    -- Confirmar la transacciÛn
+    COMMIT;
+    
+    -- Mostrar mensaje de Èxito
+    DBMS_OUTPUT.PUT_LINE('Empleados inactivos eliminados correctamente.');
+END EliminarEmpleadoInactivo;
+
+BEGIN
+    EliminarEmpleadoInactivo;
+END;
+
