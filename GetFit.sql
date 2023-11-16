@@ -127,12 +127,12 @@ INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
 VALUES
     (1, 'Lunes', TO_DATE('08:30', 'HH24:MI:SS'), TO_DATE('10:00', 'HH24:MI:SS'), 'Clase de Yoga'),
     (2, 'Martes', TO_DATE('14:00', 'HH24:MI:SS'), TO_DATE('15:30', 'HH24:MI:SS'), 'Entrenamiento Funcional'),
-    (3, 'Miércoles', TO_DATE('18:30', 'HH24:MI:SS'), TO_DATE('20:00', 'HH24:MI:SS'), 'Spinning');
+    (3, 'MiÃ©rcoles', TO_DATE('18:30', 'HH24:MI:SS'), TO_DATE('20:00', 'HH24:MI:SS'), 'Spinning');
 
 -- Insertar datos de ejemplo en la tabla FACTURA
 INSERT INTO FACTURA (ID_FACTURA, ID_CLIENTE, MONTO, FECHA, DESCRIPCION)
 VALUES
-    (1, 1, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membresía'),
+    (1, 1, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membresÃ­a'),
     (2, 2, 30000, TO_DATE('2023-11-05', 'YYYY-MM-DD'), 'Pago de clases de yoga'),
     (3, 3, 75000, TO_DATE('2023-11-10', 'YYYY-MM-DD'), 'Pago de entrenamiento personal');
 
@@ -279,10 +279,10 @@ END;
 DECLARE
     emp_cursor SYS_REFCURSOR;
 BEGIN
-    -- Llamar a la función para obtener todos los empleados
+    -- Llamar a la funciÃ³n para obtener todos los empleados
     emp_cursor := GET_ALL_EMPLEADOS;
 
-    -- Iterar a través del cursor y hacer algo con los resultados
+    -- Iterar a travÃ©s del cursor y hacer algo con los resultados
     FOR emp_rec IN emp_cursor
     LOOP
         DBMS_OUTPUT.PUT_LINE('ID_EMPLEADO: ' || emp_rec.ID_EMPLEADO || ', NOMBRE: ' || emp_rec.NOMBRE);
@@ -291,7 +291,7 @@ BEGIN
     -- Llamar a la funcion para obtener empleados por salario
     emp_cursor := GET_EMPLEADOS_BY_SALARIO(50000);
 
-    -- Usar a través del cursor y hacer algo con los resultados
+    -- Usar a travÃ©s del cursor y hacer algo con los resultados
     FOR emp_rec IN emp_cursor
     LOOP
         DBMS_OUTPUT.PUT_LINE('ID_EMPLEADO: ' || emp_rec.ID_EMPLEADO || ', NOMBRE: ' || emp_rec.NOMBRE);
@@ -305,7 +305,7 @@ C:\Users\Fabiola\AppData\Roaming\SQL Developer\mywork
 -- Cursor para la tabla FACTURA donde el monto es de 50000
     CURSOR c_factura IS
         SELECT 1 AS ID_FACTURA, 1 AS ID_CLIENTE, 50000 AS MONTO, TO_DATE('2023-10-30', 'YYYY-MM-DD') AS FECHA,
-        'Pago de membresía' AS DESCRIPCION FROM DUAL;
+        'Pago de membresÃ­a' AS DESCRIPCION FROM DUAL;
 
    -- Cursor para la tabla RESERVAS confirmada
     CURSOR c_reservas IS
@@ -329,7 +329,7 @@ BEGIN
         VALUES (reserva.ID_RESERVA, reserva.FECHA, reserva.HORA, reserva.ESTADO, reserva.ID_CLIENTE);
     END LOOP;
 
-    COMMIT; -- Confirmar la transacción
+    COMMIT; -- Confirmar la transacciÃ³n
 END;
 
 BEGIN
@@ -350,7 +350,7 @@ BEGIN
     END LOOP;
 END;
 
--- Crear una vista que incluya la información de la tabla CLIENTE
+-- Crear una vista que incluya la informaciÃ³n de la tabla CLIENTE
 CREATE VIEW Vista_Cliente AS
 SELECT
     ID_CLIENTE,
@@ -362,7 +362,7 @@ FROM CLIENTE;
 
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Cliente;
--- Crear una vista que incluya la información de la tabla MEMBRESIAS
+-- Crear una vista que incluya la informaciÃ³n de la tabla MEMBRESIAS
 CREATE VIEW Vista_Membresias AS
 SELECT
     ID_MEMBRESIA,
@@ -376,7 +376,7 @@ FROM MEMBRESIAS;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Membresias;
 
--- Crear una vista que incluya la información de la tabla EMPLEADO
+-- Crear una vista que incluya la informaciÃ³n de la tabla EMPLEADO
 CREATE VIEW Vista_Empleado AS
 SELECT
     ID_EMPLEADO,
@@ -394,7 +394,7 @@ FROM EMPLEADO;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Empleado;
 
--- Crear una vista que incluya la información de la tabla RESERVAS
+-- Crear una vista que incluya la informaciÃ³n de la tabla RESERVAS
 CREATE VIEW Vista_Reservas AS
 SELECT
     ID_RESERVA,
@@ -524,10 +524,10 @@ EXEC DELETE_FACTURA(3);
 -- Leer todos los empleados
 SELECT * FROM EMPLEADO;
 
--- Leer un empleado espec�fico por ID
+-- Leer un empleado específico por ID
 SELECT * FROM EMPLEADO WHERE ID_EMPLEADO = 1;
 
--- Actualizar informaci�n de un empleado
+-- Actualizar información de un empleado
 UPDATE EMPLEADO
 SET SALARIO = 55000, ESTADO = 'Inactivo'
 WHERE ID_EMPLEADO = 1;
@@ -541,10 +541,10 @@ BEGIN
     -- Eliminar empleados inactivos
     DELETE FROM EMPLEADO WHERE ESTADO = 'Inactivo';
     
-    -- Confirmar la transacci�n
+    -- Confirmar la transacción
     COMMIT;
     
-    -- Mostrar mensaje de �xito
+    -- Mostrar mensaje de éxito
     DBMS_OUTPUT.PUT_LINE('Empleados inactivos eliminados correctamente.');
 END EliminarEmpleadoInactivo;
 
@@ -566,3 +566,154 @@ FROM FACTURA
 GROUP BY ID_CLIENTE;
 
 --CRUD de Horarios
+CREATE OR REPLACE PROCEDURE INSERT_HORARIO(
+    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+    h_DIA IN HORARIO.DIA%TYPE,
+    h_HORA_INICIO IN HORARIO.HORA_INICIO%TYPE,
+    h_HORA_FIN IN HORARIO.HORA_FIN%TYPE,
+    h_CLASE IN HORARIO.CLASE%TYPE)
+AS
+BEGIN
+    INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
+    VALUES (h_ID_HORARIO, h_DIA, h_HORA_INICIO, h_HORA_FIN, h_CLASE);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido insertado.');
+END;
+/
+--Actualizar horarios--
+CREATE OR REPLACE PROCEDURE UPDATE_HORARIO(
+    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+    h_CLASE IN HORARIO.CLASE%TYPE)
+AS
+BEGIN
+    UPDATE HORARIO
+    SET CLASE = h_CLASE
+    WHERE ID_HORARIO = h_ID_HORARIO;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('La clase con el horario ID de: ' || h_ID_HORARIO || ' ha sido modificada.');
+END;
+/
+--Eliminar horarios--
+CREATE OR REPLACE PROCEDURE DELETE_HORARIO(
+    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE)
+AS
+BEGIN
+    DELETE FROM HORARIO
+    WHERE ID_HORARIO = h_ID_HORARIO;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido eliminado.');
+END;
+/
+--Consulta horario--
+CREATE OR REPLACE FUNCTION GET_ALL_HORARIOS
+RETURN SYS_REFCURSOR
+IS
+    horario_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN horario_cursor FOR
+        SELECT * FROM HORARIO;
+    RETURN horario_cursor;
+END;
+/
+
+--CRUD membresias--
+CREATE OR REPLACE PROCEDURE INSERT_MEMBRESIA(
+    m_ID_MEMBRESIA IN MEMBRESIAS.ID_MEMBRESIA%TYPE,
+    m_TIPO IN MEMBRESIAS.TIPO%TYPE,
+    m_ESTADO IN MEMBRESIAS.ESTADO%TYPE,
+    m_FECHA_INICIO IN MEMBRESIAS.FECHA_INICIO%TYPE,
+    m_FECHA_EXPIRACION IN MEMBRESIAS.FECHA_EXPIRACION%TYPE,
+    m_ID_CLIENTE IN MEMBRESIAS.ID_CLIENTE%TYPE)
+AS
+BEGIN
+    INSERT INTO MEMBRESIAS(ID_MEMBRESIA, TIPO, ESTADO, FECHA_INICIO, FECHA_EXPIRACION, ID_CLIENTE)
+    VALUES (m_ID_MEMBRESIA, m_TIPO, m_ESTADO, m_FECHA_INICIO, m_FECHA_EXPIRACION, m_ID_CLIENTE);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro de membresía con ID: ' || m_ID_MEMBRESIA || ' ha sido insertado.');
+END;
+/
+--Actualizar estado membresia--
+CREATE OR REPLACE PROCEDURE UPDATE_MEMBRESIA(
+    m_ID_CLIENTE IN MEMBRESIAS.ID_CLIENTE%TYPE,
+    m_ESTADO IN MEMBRESIAS.ESTADO%TYPE)
+AS
+BEGIN
+    UPDATE MEMBRESIAS
+    SET ESTADO = m_ESTADO
+    WHERE ID_CLIENTE = m_ID_CLIENTE;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El estado de la membresía del cliente con ID: ' || m_ID_CLIENTE || ' ha sido modificado.');
+END;
+/
+--Eliminar membresia--
+CREATE OR REPLACE PROCEDURE DELETE_MEMBRESIA(
+    m_ID_MEMBRESIA IN MEMBRESIAS.ID_MEMBRESIA%TYPE)
+AS
+BEGIN
+    DELETE FROM MEMBRESIAS
+    WHERE ID_MEMBRESIA = m_ID_MEMBRESIA;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro de la membresía con ID: ' || m_ID_MEMBRESIA || ' ha sido eliminado.');
+END;
+/
+--Consulta membresia--
+CREATE OR REPLACE FUNCTION GET_ALL_MEMBRESIAS
+RETURN SYS_REFCURSOR
+IS
+    membresia_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN membresia_cursor FOR
+        SELECT * FROM MEMBRESIAS;
+    RETURN membresia_cursor;
+END;
+/
+--CRUD para facturas--
+CREATE OR REPLACE PROCEDURE INSERT_FACTURA(
+    f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
+    f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE,
+    f_MONTO IN FACTURA.MONTO%TYPE,
+    f_FECHA IN FACTURA.FECHA%TYPE,
+    f_DESCRIPCION IN FACTURA.DESCRIPCION%TYPE)
+AS
+BEGIN
+    INSERT INTO FACTURA(ID_FACTURA, ID_CLIENTE, MONTO, FECHA, DESCRIPCION)
+    VALUES (f_ID_FACTURA, f_ID_CLIENTE, f_MONTO, f_FECHA, f_DESCRIPCION);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro de factura con ID: ' || f_ID_FACTURA || ' ha sido insertado.');
+END;
+/
+--Actualizar cliente de factura--
+CREATE OR REPLACE PROCEDURE UPDATE_FACTURA(
+    f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
+    f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE)
+AS
+BEGIN
+    UPDATE FACTURA
+    SET ID_CLIENTE = f_ID_CLIENTE
+    WHERE ID_FACTURA = f_ID_FACTURA;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El cliente de la factura con ID: ' || f_ID_FACTURA || ' ha sido modificado.');
+END;
+/
+--Eliminar factura--
+CREATE OR REPLACE PROCEDURE DELETE_FACTURA(
+    f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE)
+AS
+BEGIN
+    DELETE FROM FACTURA
+    WHERE ID_FACTURA = f_ID_FACTURA;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro de factura con ID: ' || f_ID_FACTURA || ' ha sido eliminado.');
+END;
+/
+--Consulta de facturas--
+CREATE OR REPLACE FUNCTION GET_ALL_FACTURAS
+RETURN SYS_REFCURSOR
+IS
+    factura_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN factura_cursor FOR
+        SELECT * FROM FACTURA;
+    RETURN factura_cursor;
+END;
+/
