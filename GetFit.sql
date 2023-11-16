@@ -276,6 +276,30 @@ BEGIN
     RETURN emp_cursor;
 END;
 
+DECLARE
+    emp_cursor SYS_REFCURSOR;
+BEGIN
+    -- Llamar a la función para obtener todos los empleados
+    emp_cursor := GET_ALL_EMPLEADOS;
+
+    -- Iterar a través del cursor y hacer algo con los resultados
+    FOR emp_rec IN emp_cursor
+    LOOP
+        DBMS_OUTPUT.PUT_LINE('ID_EMPLEADO: ' || emp_rec.ID_EMPLEADO || ', NOMBRE: ' || emp_rec.NOMBRE);
+    END LOOP;
+
+    -- Llamar a la función para obtener empleados por salario
+    emp_cursor := GET_EMPLEADOS_BY_SALARIO(50000);
+
+    -- Usar a través del cursor y hacer algo con los resultados
+    FOR emp_rec IN emp_cursor
+    LOOP
+        DBMS_OUTPUT.PUT_LINE('ID_EMPLEADO: ' || emp_rec.ID_EMPLEADO || ', NOMBRE: ' || emp_rec.NOMBRE);
+    END LOOP;
+END;
+/
+
+
 C:\Users\Fabiola\AppData\Roaming\SQL Developer\mywork
 
 -- Cursor para la tabla FACTURA
