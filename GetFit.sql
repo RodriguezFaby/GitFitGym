@@ -271,6 +271,10 @@ C:\Users\Fabiola\AppData\Roaming\SQL Developer\mywork
     CURSOR c_horario IS
         SELECT 1 AS ID_HORARIO, 'Lunes' AS DIA, TO_DATE('08:30', 'HH24:MI') AS HORA_INICIO, TO_DATE('10:00', 'HH24:MI') AS HORA_FIN,
         'Clase de Yoga' AS CLASE FROM DUAL;
+
+   -- Cursor para la tabla EMPLEADO
+   CURSOR c_empleado IS
+	SELECT * FROM EMPLEADO;
     
 BEGIN
     -- Insertar datos en la tabla RESERVAS
