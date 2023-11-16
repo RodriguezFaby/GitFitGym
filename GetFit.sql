@@ -419,3 +419,103 @@ FROM FACTURA;
 
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Factura;
+
+/*---------SP para modificar el estado de la reserva de los clientes-------------------*/
+CREATE OR REPLACE PROCEDURE UPDATE_RESERVA(
+	   r_ID_RESERVA IN RESERVAS.ID_RESERVA%TYPE,
+	   r_ESTADO IN RESERVAS.ESTADO%TYPE)
+AS
+BEGIN
+
+  UPDATE RESERVAS
+    SET ESTADO = r_ESTADO
+    WHERE ID_RESERVA = r_ID_RESERVA;
+    COMMIT;
+  DBMS_OUTPUT.PUT_LINE('El registro del estado con ID: ' || r_ID_RESERVA || ' ha sido modificado');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC UPDATE_RESERVA(1,'Pendiente');
+
+/*---------SP para modificar la clase segun el horario-------------------*/
+CREATE OR REPLACE PROCEDURE UPDATE_HORARIO(
+	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+	   h_CLASE IN HORARIO.CLASE%TYPE)
+AS
+BEGIN
+
+  UPDATE HORARIO
+    SET CLASE = h_CLASE
+    WHERE ID_HORARIO = r_ID_HORARIO;
+    COMMIT;
+  DBMS_OUTPUT.PUT_LINE('La clase con el horario ID de: ' || h_ID_HORARIO || ' ha sido modificado');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC UPDATE_HORARIO(1,2);
+
+
+/*---------SP para modificar la clase segun el horario-------------------*/
+CREATE OR REPLACE PROCEDURE UPDATE_FACTURA(
+	   f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
+	   f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE)
+AS
+BEGIN
+
+  UPDATE FACTURA
+    SET ID_CLIENTE = f_ID_CLIENTE
+    WHERE ID_FACTURA = f_ID_FACTURA;
+    COMMIT;
+  DBMS_OUTPUT.PUT_LINE('La factura con el ID: ' || f_ID_FACTURA || ' ha sido modificado');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC UPDATE_FACTURA(1,'Cardio');
+
+/*---------SP para eliminar reservas-------------------*/
+CREATE OR REPLACE PROCEDURE DELETE_RESERVAS(
+	   r_ID_RESERVA IN RESERVAS.ID_RESERVA %TYPE)
+AS
+BEGIN
+
+  DELETE FROM RESERVAS
+    WHERE ID_RESERVA = r_ID_RESERVA;
+  DBMS_OUTPUT.PUT_LINE('La reserva con ID: ' || r_ID_RESERVA || ' ha sido eliminada');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC DELETE_RESERVAS(3);
+
+/*---------SP para eliminar horarios-------------------*/
+CREATE OR REPLACE PROCEDURE DELETE_HORARIO(
+	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE)
+AS
+BEGIN
+
+  DELETE FROM HORARIO
+    WHERE ID_HORARIO = h_ID_HORARIO;
+  DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido eliminado');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC DELETE_HORARIO(3);
+
+/*---------SP para eliminar horarios-------------------*/
+CREATE OR REPLACE PROCEDURE DELETE_FACTURA(
+	   f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE)
+AS
+BEGIN
+
+  DELETE FROM FACTURA
+    WHERE ID_FACTURA = f_ID_FACTURA;
+  DBMS_OUTPUT.PUT_LINE('La factura con ID: ' || f_ID_FACTURA || ' ha sido eliminada');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC DELETE_FACTURA(3);
