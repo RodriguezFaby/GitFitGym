@@ -127,12 +127,12 @@ INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
 VALUES
     (1, 'Lunes', TO_DATE('08:30', 'HH24:MI:SS'), TO_DATE('10:00', 'HH24:MI:SS'), 'Clase de Yoga'),
     (2, 'Martes', TO_DATE('14:00', 'HH24:MI:SS'), TO_DATE('15:30', 'HH24:MI:SS'), 'Entrenamiento Funcional'),
-    (3, 'Mi閞coles', TO_DATE('18:30', 'HH24:MI:SS'), TO_DATE('20:00', 'HH24:MI:SS'), 'Spinning');
+    (3, 'Mi茅rcoles', TO_DATE('18:30', 'HH24:MI:SS'), TO_DATE('20:00', 'HH24:MI:SS'), 'Spinning');
 
 -- Insertar datos de ejemplo en la tabla FACTURA
 INSERT INTO FACTURA (ID_FACTURA, ID_CLIENTE, MONTO, FECHA, DESCRIPCION)
 VALUES
-    (1, 1, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membres韆'),
+    (1, 1, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membres铆a'),
     (2, 2, 30000, TO_DATE('2023-11-05', 'YYYY-MM-DD'), 'Pago de clases de yoga'),
     (3, 3, 75000, TO_DATE('2023-11-10', 'YYYY-MM-DD'), 'Pago de entrenamiento personal');
 
@@ -260,7 +260,7 @@ C:\Users\Fabiola\AppData\Roaming\SQL Developer\mywork
 -- Cursor para la tabla FACTURA
     CURSOR c_factura IS
         SELECT 1 AS ID_FACTURA, 1 AS ID_CLIENTE, 50000 AS MONTO, TO_DATE('2023-10-30', 'YYYY-MM-DD') AS FECHA,
-        'Pago de membres韆' AS DESCRIPCION FROM DUAL;
+        'Pago de membres铆a' AS DESCRIPCION FROM DUAL;
 
    -- Cursor para la tabla RESERVAS
     CURSOR c_reservas IS
@@ -280,7 +280,7 @@ BEGIN
         VALUES (reserva.ID_RESERVA, reserva.FECHA, reserva.HORA, reserva.ESTADO, reserva.ID_CLIENTE);
     END LOOP;
 
-    COMMIT; -- Confirmar la transacci髇
+    COMMIT; -- Confirmar la transacci贸n
 END;
 
 BEGIN
@@ -301,7 +301,7 @@ BEGIN
     END LOOP;
 END;
 
--- Crear una vista que incluya la informaci髇 de la tabla CLIENTE
+-- Crear una vista que incluya la informaci贸n de la tabla CLIENTE
 CREATE VIEW Vista_Cliente AS
 SELECT
     ID_CLIENTE,
@@ -313,4 +313,60 @@ FROM CLIENTE;
 
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Cliente;
+-- Crear una vista que incluya la informaci贸n de la tabla MEMBRESIAS
+CREATE VIEW Vista_Membresias AS
+SELECT
+    ID_MEMBRESIA,
+    TIPO,
+    ESTADO,
+    FECHA_INICIO,
+    FECHA_EXPIRACION,
+    ID_CLIENTE
+FROM MEMBRESIAS;
 
+-- Consulta utilizando la vista
+SELECT * FROM Vista_Membresias;
+
+-- Crear una vista que incluya la informaci贸n de la tabla EMPLEADO
+CREATE VIEW Vista_Empleado AS
+SELECT
+    ID_EMPLEADO,
+    NOMBRE,
+    APELLIDO,
+    FECHA_INICIO,
+    ESTADO,
+    SALARIO,
+    EMAIL,
+    TELEFONO,
+    PUESTO
+FROM EMPLEADO;
+
+
+-- Consulta utilizando la vista
+SELECT * FROM Vista_Empleado;
+
+-- Crear una vista que incluya la informaci贸n de la tabla RESERVAS
+CREATE VIEW Vista_Reservas AS
+SELECT
+    ID_RESERVA,
+    FECHA,
+    HORA,
+    ESTADO,
+    ID_CLIENTE
+FROM RESERVAS;
+
+-- Consulta utilizando la vista
+SELECT * FROM Vista_Reservas;
+
+-- Crear una vista que incluya la informaci贸n de la tabla FACTURA
+CREATE VIEW Vista_Factura AS
+SELECT
+    ID_FACTURA,
+    ID_CLIENTE,
+    MONTO,
+    FECHA,
+    DESCRIPCION
+FROM FACTURA;
+
+-- Consulta utilizando la vista
+SELECT * FROM Vista_Factura;
