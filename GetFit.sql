@@ -520,7 +520,7 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC DELETE_FACTURA(3);
 
-
+--RESTO DEL CRUD DE EMPLEADO
 -- Leer todos los empleados
 SELECT * FROM EMPLEADO;
 
@@ -552,3 +552,17 @@ BEGIN
     EliminarEmpleadoInactivo;
 END;
 
+--FUNCION DE FACTURA DE SU FECHA DE INICIO HASTA HOY
+SELECT MONTHS_BETWEEN(FECHA_INICIO, SYSDATE) FROM EMPLEADO;
+
+--Funcion del numero total de reservas por el estado que se tiene
+SELECT ESTADO, COUNT(*) AS CANTIDAD
+FROM RESERVAS
+GROUP BY ESTADO;
+
+--Funcion del promedio de montos de factura por cada cliente
+SELECT ID_CLIENTE, AVG(MONTO) AS PROMEDIO_MONTO
+FROM FACTURA
+GROUP BY ID_CLIENTE;
+
+--CRUD de Horarios
