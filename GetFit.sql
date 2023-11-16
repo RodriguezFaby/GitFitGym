@@ -394,7 +394,7 @@ FROM EMPLEADO;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Empleado;
 
--- Crear una vista que incluya la informaciÃ³n de la tabla RESERVAS
+-- Crear una vista que incluya la información de la tabla RESERVAS
 CREATE VIEW Vista_Reservas AS
 SELECT
     ID_RESERVA,
@@ -565,6 +565,53 @@ SELECT ID_CLIENTE, AVG(MONTO) AS PROMEDIO_MONTO
 FROM FACTURA
 GROUP BY ID_CLIENTE;
 
+--Funcion para ver todos los clientes--
+CREATE OR REPLACE FUNCTION GET_ALL_CLIENTES
+RETURN SYS_REFCURSOR
+IS
+    cliente_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN cliente_cursor FOR
+        SELECT * FROM CLIENTE;
+    RETURN cliente_cursor;
+END;
+/
+--Funcion para obtener todos los empleados--
+CREATE OR REPLACE FUNCTION GET_ALL_EMPLEADOS
+RETURN SYS_REFCURSOR
+IS
+    empleado_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN empleado_cursor FOR
+        SELECT * FROM EMPLEADO;
+    RETURN empleado_cursor;
+END;
+/
+
+--Funcion para obtener todas las reservas--
+CREATE OR REPLACE FUNCTION GET_ALL_RESERVAS
+RETURN SYS_REFCURSOR
+IS
+    reservas_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN reservas_cursor FOR
+        SELECT * FROM RESERVAS;
+    RETURN reservas_cursor;
+END;
+/
+
+--Funcion para obtener todas las facturas--
+CREATE OR REPLACE FUNCTION GET_ALL_FACTURAS
+RETURN SYS_REFCURSOR
+IS
+    factura_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN factura_cursor FOR
+        SELECT * FROM FACTURA;
+    RETURN factura_cursor;
+END;
+/
+	
 --CRUD de Horarios
 CREATE OR REPLACE PROCEDURE INSERT_HORARIO(
     h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
