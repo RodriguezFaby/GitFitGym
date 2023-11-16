@@ -254,6 +254,27 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC DELETE_MEMBRESIA(4)
 
+-- Funciones para la tabla EMPLEADO --
+CREATE OR REPLACE FUNCTION GET_ALL_EMPLEADOS
+RETURN SYS_REFCURSOR
+IS
+    emp_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN emp_cursor FOR
+        SELECT * FROM EMPLEADO;
+    RETURN emp_cursor;
+END;
+
+CREATE OR REPLACE FUNCTION GET_EMPLEADOS_BY_SALARIO(
+    E_SALARIO IN EMPLEADO.SALARIO%TYPE)
+RETURN SYS_REFCURSOR
+IS
+    emp_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN emp_cursor FOR
+        SELECT * FROM EMPLEADO WHERE SALARIO = E_SALARIO;
+    RETURN emp_cursor;
+END;
 
 C:\Users\Fabiola\AppData\Roaming\SQL Developer\mywork
 
