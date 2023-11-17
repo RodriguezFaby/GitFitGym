@@ -65,15 +65,15 @@ create table EMPLEADO(
 create table RESERVAS(
     ID_RESERVA INT NOT NULL PRIMARY KEY,
     FECHA DATE NOT NULL,
-    HORA TIME NOT NULL,
+    HORA TIMESTAMP NOT NULL,
     ESTADO VARCHAR(45) NOT NULL,
     ID_CLIENTE INT NOT NULL);
 
 create table HORARIO(
     ID_HORARIO INT NOT NULL PRIMARY KEY,
     DIA VARCHAR (20) NOT NULL,
-    HORA_INICIO TIME NOT NULL,
-    HORA_FIN TIME NOT NULL,
+    HORA_INICIO TIMESTAMP  NOT NULL,
+    HORA_FIN TIMESTAMP  NOT NULL,
     CLASE VARCHAR(100) NOT NULL);
     
 create table FACTURA(
@@ -118,21 +118,20 @@ insert into MEMBRESIAS values(2,'STANDARD','Activo','15/10/2023','15/11/2023',2)
 insert into MEMBRESIAS values(3,'VIP','Activo','03/11/2023','03/12/2023',3)
 
 INSERT INTO RESERVAS (ID_RESERVA, FECHA, HORA, ESTADO, ID_CLIENTE)
-VALUES
-    (1, TO_DATE('2023-10-30', 'YYYY-MM-DD'), TO_DATE('14:00', 'HH24:MI:SS'), 'Confirmada', 2),
-    (2, TO_DATE('2023-11-05', 'YYYY-MM-DD'), TO_DATE('09:30', 'HH24:MI:SS'), 'Pendiente', 1),
-    (3, TO_DATE('2023-11-10', 'YYYY-MM-DD'), TO_DATE('18:00', 'HH24:MI:SS'), 'Confirmada', 3);
+VALUES (1, TO_DATE('2023-10-30', 'YYYY-MM-DD'), TO_TIMESTAMP('14:00', 'HH24:MI:SS'), 'Confirmada', 2),
+    (2, TO_DATE('2023-11-05', 'YYYY-MM-DD'), TO_TIMESTAMP('09:30', 'HH24:MI:SS'), 'Pendiente', 1),
+    (3, TO_DATE('2023-11-10', 'YYYY-MM-DD'), TO_TIMESTAMP('18:00', 'HH24:MI:SS'), 'Confirmada', 3);
     
 INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
 VALUES
-    (1, 'Lunes', TO_DATE('08:30', 'HH24:MI:SS'), TO_DATE('10:00', 'HH24:MI:SS'), 'Clase de Yoga'),
-    (2, 'Martes', TO_DATE('14:00', 'HH24:MI:SS'), TO_DATE('15:30', 'HH24:MI:SS'), 'Entrenamiento Funcional'),
-    (3, 'MiÃ©rcoles', TO_DATE('18:30', 'HH24:MI:SS'), TO_DATE('20:00', 'HH24:MI:SS'), 'Spinning');
+    (1, 'Lunes', TO_DATE('08:30', 'HH24:MI:SS'), TO_TIMESTAMP('10:00', 'HH24:MI:SS'), 'Clase de Yoga'),
+    (2, 'Martes', TO_DATE('14:00', 'HH24:MI:SS'), TO_TIMESTAMP('15:30', 'HH24:MI:SS'), 'Entrenamiento Funcional'),
+    (3, 'Miercoles', TO_DATE('18:30', 'HH24:MI:SS'), TO_TIMESTAMP('20:00', 'HH24:MI:SS'), 'Spinning');
 
 -- Insertar datos de ejemplo en la tabla FACTURA
 INSERT INTO FACTURA (ID_FACTURA, ID_CLIENTE, MONTO, FECHA, DESCRIPCION)
 VALUES
-    (1, 1, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membresÃ­a'),
+    (1, 1, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membresia'),
     (2, 2, 30000, TO_DATE('2023-11-05', 'YYYY-MM-DD'), 'Pago de clases de yoga'),
     (3, 3, 75000, TO_DATE('2023-11-10', 'YYYY-MM-DD'), 'Pago de entrenamiento personal');
 
@@ -575,7 +574,7 @@ BEGIN
         SELECT * FROM CLIENTE;
     RETURN cliente_cursor;
 END;
-/
+
 --Funcion para obtener todos los empleados--
 CREATE OR REPLACE FUNCTION GET_ALL_EMPLEADOS
 RETURN SYS_REFCURSOR
@@ -586,7 +585,7 @@ BEGIN
         SELECT * FROM EMPLEADO;
     RETURN empleado_cursor;
 END;
-/
+
 
 --Funcion para obtener todas las reservas--
 CREATE OR REPLACE FUNCTION GET_ALL_RESERVAS
@@ -598,7 +597,7 @@ BEGIN
         SELECT * FROM RESERVAS;
     RETURN reservas_cursor;
 END;
-/
+
 
 --Funcion para obtener todas las facturas--
 CREATE OR REPLACE FUNCTION GET_ALL_FACTURAS
@@ -610,7 +609,7 @@ BEGIN
         SELECT * FROM FACTURA;
     RETURN factura_cursor;
 END;
-/
+
 	
 --CRUD de Horarios
 CREATE OR REPLACE PROCEDURE INSERT_HORARIO(
@@ -626,7 +625,7 @@ BEGIN
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido insertado.');
 END;
-/
+
 --Actualizar horarios--
 CREATE OR REPLACE PROCEDURE UPDATE_HORARIO(
     h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
@@ -639,7 +638,7 @@ BEGIN
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('La clase con el horario ID de: ' || h_ID_HORARIO || ' ha sido modificada.');
 END;
-/
+
 --Eliminar horarios--
 CREATE OR REPLACE PROCEDURE DELETE_HORARIO(
     h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE)
@@ -650,7 +649,7 @@ BEGIN
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido eliminado.');
 END;
-/
+
 --Consulta horario--
 CREATE OR REPLACE FUNCTION GET_ALL_HORARIOS
 RETURN SYS_REFCURSOR
@@ -661,7 +660,6 @@ BEGIN
         SELECT * FROM HORARIO;
     RETURN horario_cursor;
 END;
-/
 
 
 --CRUD para facturas--
@@ -678,7 +676,7 @@ BEGIN
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('El registro de factura con ID: ' || f_ID_FACTURA || ' ha sido insertado.');
 END;
-/
+
 --Actualizar cliente de factura--
 CREATE OR REPLACE PROCEDURE UPDATE_FACTURA(
     f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
@@ -691,7 +689,7 @@ BEGIN
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('El cliente de la factura con ID: ' || f_ID_FACTURA || ' ha sido modificado.');
 END;
-/
+
 --Eliminar factura--
 CREATE OR REPLACE PROCEDURE DELETE_FACTURA(
     f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE)
@@ -702,7 +700,7 @@ BEGIN
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('El registro de factura con ID: ' || f_ID_FACTURA || ' ha sido eliminado.');
 END;
-/
+
 --Consulta de facturas--
 CREATE OR REPLACE FUNCTION GET_ALL_FACTURAS
 RETURN SYS_REFCURSOR
@@ -713,4 +711,4 @@ BEGIN
         SELECT * FROM FACTURA;
     RETURN factura_cursor;
 END;
-/
+
