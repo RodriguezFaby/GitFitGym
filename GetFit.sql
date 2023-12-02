@@ -1,14 +1,18 @@
 /*-------------------------Crear un tablespace------------------------------*/
 create tablespace TBS_PROYECTO datafile
-'C:\USERS\FABIOLA\DESKTOP\ORADATA\ORCL\proyecto1.dbf ' size 20M default storage (initial
+'C:\Users\Mau\Music\Lenguaje-BD\oradata\ORCL\proyecto1.dbf ' size 20M default storage (initial
 1m next 1m pctincrease 0);
 
 /*-----------------------MODIFCAR LA SESSION---------------------------------*/
 alter session set "_ORACLE_SCRIPT"=true;
-
 /*----------------------Habilitar outputs------------------------------------*/
 SET SERVEROUTPUT ON;
+/*SELECT tablespace_name, file_name
+FROM dba_data_files
+WHERE tablespace_name = 'TBS_PROYECTO';
+*/
 
+--alter tablespace TBS_PROYECTO ADD DATAFILE 'C:\Users\Mau\Music\Lenguaje-BD\oradata\ORCL\PROYECTO1.DBF' size 20M AUTOEXTEND ON NEXT 1M MAXSIZE UNLIMITED;
 /*------------Asigno a mi usuario el tablespack creado----------------------*/
 alter user adm_proyecto quota unlimited on TBS_PROYECTO;
 
@@ -448,10 +452,10 @@ END;
 DECLARE
     emp_cursor SYS_REFCURSOR;
 BEGIN
-    -- Llamar a la funciÃ³n para obtener todos los empleados
+    -- Llamar a la funcion para obtener todos los empleados
     emp_cursor := GET_ALL_EMPLEADOS;
 
-    -- Iterar a travÃ©s del cursor y hacer algo con los resultados
+    -- Iterar a traves del cursor y hacer algo con los resultados
     FOR emp_rec IN emp_cursor
     LOOP
         DBMS_OUTPUT.PUT_LINE('ID_EMPLEADO: ' || emp_rec.ID_EMPLEADO || ', NOMBRE: ' || emp_rec.NOMBRE);
@@ -460,7 +464,7 @@ BEGIN
     -- Llamar a la funcion para obtener empleados por salario
     emp_cursor := GET_EMPLEADOS_BY_SALARIO(50000);
 
-    -- Usar a travÃ©s del cursor y hacer algo con los resultados
+    -- Usar a traves del cursor y hacer algo con los resultados
     FOR emp_rec IN emp_cursor
     LOOP
         DBMS_OUTPUT.PUT_LINE('ID_EMPLEADO: ' || emp_rec.ID_EMPLEADO || ', NOMBRE: ' || emp_rec.NOMBRE);
@@ -473,7 +477,7 @@ END;
 -- Cursor para la tabla FACTURA donde el monto es de 50000
     CURSOR c_factura IS
         SELECT 1 AS ID_FACTURA, 1 AS ID_CLIENTE, 50000 AS MONTO, TO_DATE('2023-10-30', 'YYYY-MM-DD') AS FECHA,
-        'Pago de membresÃ­a' AS DESCRIPCION FROM DUAL;
+        'Pago de membresias' AS DESCRIPCION FROM DUAL;
 
    -- Cursor para la tabla RESERVAS confirmada
     CURSOR c_reservas IS
@@ -488,16 +492,16 @@ END;
    -- Cursor para la tabla EMPLEADO
    CURSOR c_empleado IS
 	SELECT * FROM EMPLEADO;
-    
+   
+        -- Insertar datos en la tabla RESERVAS
 BEGIN
-    -- Insertar datos en la tabla RESERVAS
     FOR reserva IN c_reservas
     LOOP
         INSERT INTO RESERVAS (ID_RESERVA, FECHA, HORA, ESTADO, ID_CLIENTE)
         VALUES (reserva.ID_RESERVA, reserva.FECHA, reserva.HORA, reserva.ESTADO, reserva.ID_CLIENTE);
     END LOOP;
 
-    COMMIT; -- Confirmar la transacciÃ³n
+    COMMIT; -- Confirmar la transaccion
 END;
 
 BEGIN
@@ -518,7 +522,7 @@ BEGIN
     END LOOP;
 END;
 
--- Crear una vista que incluya la informaciÃ³n de la tabla CLIENTE
+-- Crear una vista que incluya la informacion de la tabla CLIENTE
 CREATE VIEW Vista_Cliente AS
 SELECT
     ID_CLIENTE,
@@ -530,7 +534,7 @@ FROM CLIENTE;
 
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Cliente;
--- Crear una vista que incluya la informaciÃ³n de la tabla MEMBRESIAS
+-- Crear una vista que incluya la informacion de la tabla MEMBRESIAS
 CREATE VIEW Vista_Membresias AS
 SELECT
     ID_MEMBRESIA,
@@ -544,7 +548,7 @@ FROM MEMBRESIAS;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Membresias;
 
--- Crear una vista que incluya la informaciÃ³n de la tabla EMPLEADO
+-- Crear una vista que incluya la informacion de la tabla EMPLEADO
 CREATE VIEW Vista_Empleado AS
 SELECT
     ID_EMPLEADO,
@@ -562,7 +566,7 @@ FROM EMPLEADO;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Empleado;
 
--- Crear una vista que incluya la información de la tabla RESERVAS
+-- Crear una vista que incluya la informacion de la tabla RESERVAS
 CREATE VIEW Vista_Reservas AS
 SELECT
     ID_RESERVA,
@@ -593,10 +597,10 @@ SELECT * FROM Vista_Factura;
 -- Leer todos los empleados
 SELECT * FROM EMPLEADO;
 
--- Leer un empleado específico por ID
+-- Leer un empleado especifico por ID
 SELECT * FROM EMPLEADO WHERE ID_EMPLEADO = 1;
 
--- Actualizar información de un empleado
+-- Actualizar informacion de un empleado
 UPDATE EMPLEADO
 SET SALARIO = 55000, ESTADO = 'Inactivo'
 WHERE ID_EMPLEADO = 1;
@@ -610,10 +614,10 @@ BEGIN
     -- Eliminar empleados inactivos
     DELETE FROM EMPLEADO WHERE ESTADO = 'Inactivo';
     
-    -- Confirmar la transacción
+    -- Confirmar la transaccion
     COMMIT;
     
-    -- Mostrar mensaje de éxito
+    -- Mostrar mensaje de inactivo
     DBMS_OUTPUT.PUT_LINE('Empleados inactivos eliminados correctamente.');
 END EliminarEmpleadoInactivo;
 
