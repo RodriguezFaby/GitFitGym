@@ -259,7 +259,7 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC INSERT_MEMBRESIA(4,'Standard','Activo','10/11/2023','10/12/2023',1);
 
-/*---------SP para modificar el estado de membresia segun el ID del cliente-------------------*/
+/*---------SP para modificar el estado de membresia segun el ID del cliente----*/
 CREATE OR REPLACE PROCEDURE UPDATE_MEMBRESIAS(
 	   m_ID_CLIENTE IN MEMBRESIAS.ID_CLIENTE%TYPE,
 	   m_ESTADO IN MEMBRESIAS.ESTADO%TYPE)
@@ -330,33 +330,33 @@ CREATE OR REPLACE PROCEDURE INSERT_HORARIO(
     h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
     h_DIA IN HORARIO.DIA%TYPE,
     h_HORA_INICIO IN HORARIO.HORA_INICIO%TYPE,
-    h_HORA_FIN IN HORARIO.HORA_FIN%TYPE,
-    h_CLASE IN HORARIO.CLASE%TYPE)
+    h_HORA_FIN IN HORARIO.HORA_FIN%TYPE)
 AS
 BEGIN
-    INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
-    VALUES (h_ID_HORARIO, h_DIA, h_HORA_INICIO, h_HORA_FIN, h_CLASE);
+    INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN)
+    VALUES (h_ID_HORARIO, h_DIA, h_HORA_INICIO, h_HORA_FIN);
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido insertado.');
 END;
 
-/*---------SP para modificar la clase segun el horario-------------------*/
+
+/*---------SP para modificar el dia del horario-------------------*/
 CREATE OR REPLACE PROCEDURE UPDATE_HORARIO(
 	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
-	   h_CLASE IN HORARIO.CLASE%TYPE)
+	   h_DIA IN HORARIO.DIA%TYPE)
 AS
 BEGIN
 
   UPDATE HORARIO
-    SET CLASE = h_CLASE
-    WHERE ID_HORARIO = r_ID_HORARIO;
+    SET DIA = h_DIA
+    WHERE ID_HORARIO = h_ID_HORARIO;
     COMMIT;
-  DBMS_OUTPUT.PUT_LINE('La clase con el horario ID de: ' || h_ID_HORARIO || ' ha sido modificado');
+  DBMS_OUTPUT.PUT_LINE('El dia con el horario ID de: ' || h_ID_HORARIO || ' ha sido modificado');
 
 END;
 
 /*---------------correr el procedimiento---------------*/
-EXEC UPDATE_HORARIO(1,2);
+EXEC UPDATE_HORARIO(3,'Lunes');
 
 /*---------SP para eliminar horarios-------------------*/
 CREATE OR REPLACE PROCEDURE DELETE_HORARIO(
@@ -371,7 +371,7 @@ BEGIN
 END;
 
 /*---------------correr el procedimiento---------------*/
-EXEC DELETE_HORARIO(3);
+EXEC DELETE_HORARIO(4);
 
 ----------------------CRUD para facturas------------------------------
 CREATE OR REPLACE PROCEDURE INSERT_FACTURA(
@@ -388,7 +388,7 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('El registro de factura con ID: ' || f_ID_FACTURA || ' ha sido insertado.');
 END;
 
-/*---------SP para modificar la clase segun el factura-------------------*/
+/*---------SP para modificar el cliente en la tabla FACTURA-------------------*/
 CREATE OR REPLACE PROCEDURE UPDATE_FACTURA(
 	   f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
 	   f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE)
@@ -404,7 +404,7 @@ BEGIN
 END;
 
 /*---------------correr el procedimiento---------------*/
-EXEC UPDATE_FACTURA(1,'Cardio');
+EXEC UPDATE_FACTURA(1,3);
 
 /*---------SP para eliminar factura-------------------*/
 CREATE OR REPLACE PROCEDURE DELETE_FACTURA(
@@ -421,8 +421,9 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC DELETE_FACTURA(3);
 
-
+------------------------------------------------------------------------------
 ------------------------- Funciones para la tabla EMPLEADO ---------------
+
 CREATE OR REPLACE FUNCTION GET_ALL_EMPLEADOS
 RETURN SYS_REFCURSOR
 IS
