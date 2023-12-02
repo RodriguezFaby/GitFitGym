@@ -1,15 +1,15 @@
-/*Crear un tablespace*/
+/*-------------------------Crear un tablespace------------------------------*/
 create tablespace TBS_PROYECTO datafile
 'C:\USERS\FABIOLA\DESKTOP\ORADATA\ORCL\proyecto1.dbf ' size 20M default storage (initial
 1m next 1m pctincrease 0);
 
-/*MODIFCAR LA SESSION*/
+/*-----------------------MODIFCAR LA SESSION---------------------------------*/
 alter session set "_ORACLE_SCRIPT"=true;
 
-/*Habilitar outputs*/
+/*----------------------Habilitar outputs------------------------------------*/
 SET SERVEROUTPUT ON;
 
-/*Asigno a mi usuario el tablespack creado*/
+/*------------Asigno a mi usuario el tablespack creado----------------------*/
 alter user adm_proyecto quota unlimited on TBS_PROYECTO;
 
 /*creacion de users y asignarles el tablespace TBS_PROYECTO*/
@@ -21,7 +21,7 @@ create user adm_membresias identified by "123456" default tablespace TBS_PROYECT
 create user adm_instructores identified by "123456" default tablespace TBS_PROYECTO;
 create user adm_reservas identified by "123456" default tablespace TBS_PROYECTO;*/
 
-/*Creacion de rols*/
+/*---------------Creacion de rols---------------------------------------*/
 create role rol_adm_db;
 create role rol_adm_cliente;
 create role rol_adm_membresias;
@@ -30,7 +30,17 @@ create role rol_adm_membresias;
 create role rol_adm_instructores;
 create role rol_adm_reservas;*/
 
-/*---------------------CREAR TABLA-------------------------*/
+
+/*----------------------DAR permisos especificos a un rol--------------*/
+/*GRANT SELECT,INSERT,UPDATE,DELETE ON CLIENTE TO rol_adm_cliente;*/
+
+/*Dar permisos a users, en este caso a adm_db*/
+/*grant create session to adm_db;
+grant connect to adm_db;
+grant dba to adm_db;*/
+
+
+/*---------------------CREAR TABLAS--------------------------------*/
 
 create table CLIENTE
 (
@@ -57,83 +67,111 @@ create table EMPLEADO(
     APELLIDO VARCHAR (25) NOT NULL,
     FECHA_INICIO DATE NOT NULL,
     ESTADO VARCHAR(45) NOT NULL,
-    SALARIO NUMBER NOT NULL,
+    SALARIO INT NOT NULL,
     EMAIL VARCHAR(50) NOT NULL,
-    TELEFONO NUMBER NOT NULL,
-    PUESTO VARCHAR(50) NOT NULL);
+    TELEFONO INT NOT NULL,
+    PUESTO VARCHAR(50) NOT NULL
+);
+
+create table CLASES(
+    ID_CLASE INT NOT NULL PRIMARY KEY,
+    DESCRIPCION VARCHAR (50) NOT NULL,
+    ESTADO VARCHAR(45) NOT NULL,
+    ESPACIOS INT NOT NULL,
+    ID_EMPLEADO INT NOT NULL,
+    ID_HORARIO INT NOT NULL
+);
+    
 
 create table RESERVAS(
     ID_RESERVA INT NOT NULL PRIMARY KEY,
-    FECHA DATE NOT NULL,
-    HORA TIMESTAMP NOT NULL,
     ESTADO VARCHAR(45) NOT NULL,
-    ID_CLIENTE INT NOT NULL);
+    ID_CLASE INT NOT NULL,
+    ID_CLIENTE INT NOT NULL
+);
 
 create table HORARIO(
     ID_HORARIO INT NOT NULL PRIMARY KEY,
     DIA VARCHAR (20) NOT NULL,
     HORA_INICIO TIMESTAMP  NOT NULL,
-    HORA_FIN TIMESTAMP  NOT NULL,
-    CLASE VARCHAR(100) NOT NULL);
-    
+    HORA_FIN TIMESTAMP  NOT NULL
+);
+
 create table FACTURA(
     ID_FACTURA INT NOT NULL PRIMARY KEY,
     ID_CLIENTE INT NOT NULL,
     MONTO INT NOT NULL,
     FECHA DATE NOT NULL,
-    DESCRIPCION VARCHAR (100) NOT NULL);
-    
-    
-/*Agregar FK de tablas*/
-ALTER TABLE MEMBRESIAS
-ADD CONSTRAINT MEM_CLT_FK 
-FOREIGN KEY(ID_CLIENTE)
-REFERENCES CLIENTE(ID_CLIENTE);
+    DESCRIPCION VARCHAR (100) NOT NULL
+);
 
-ALTER TABLE RESERVAS
-ADD CONSTRAINT RES_CLT_FK 
-FOREIGN KEY(ID_CLIENTE)
-REFERENCES CLIENTE(ID_CLIENTE);
 
-ALTER TABLE FACTURA
-ADD CONSTRAINT FACT_CLT_FK 
-FOREIGN KEY(ID_CLIENTE)
-REFERENCES CLIENTE(ID_CLIENTE);
+/*------------Agregar FK de tablas--------------------------------------*/
 
-/*DAR permisos especificos a un rol*/
-/*GRANT SELECT,INSERT,UPDATE,DELETE ON CLIENTE TO rol_adm_cliente;*/
+/* FK para tabla MEMBRESIAS*/
+alter table "ADM_PROYECTO"."MEMBRESIAS" 
+add constraint FK_ID_CLIENTE 
+foreign key("ID_CLIENTE") 
+references "CLIENTE"("ID_CLIENTE");
 
-/*Dar permisos a users, en este caso a adm_db*/
-/*grant create session to adm_db;
-grant connect to adm_db;
-grant dba to adm_db;*/
+/* FK para tabla CLASES*/
+alter table "ADM_PROYECTO"."CLASES" 
+add constraint FK_ID_EMPLEADO 
+foreign key("ID_EMPLEADO") 
+references "EMPLEADO"("ID_EMPLEADO");
+
+alter table "ADM_PROYECTO"."CLASES" 
+add constraint FK_ID_HORARIO 
+foreign key("ID_HORARIO") 
+references "HORARIO"("ID_HORARIO");
+
+/* FK para tabla RESERVAS*/
+alter table "ADM_PROYECTO"."RESERVAS" 
+add constraint FK_ID_CLASE 
+foreign key("ID_CLASE") 
+references "CLASES"("ID_CLASE");
+
+alter table "ADM_PROYECTO"."RESERVAS" 
+add constraint FK_ID_RCLIENTE 
+foreign key("ID_CLIENTE") 
+references "CLIENTE"("ID_CLIENTE");
+
+/* FK para tabla FACTURA*/
+alter table "ADM_PROYECTO"."FACTURA" 
+add constraint FK_ID_FCLIENTE 
+foreign key("ID_FACTURA") 
+references "FACTURA"("ID_FACTURA");
+
 
 /*-------------------Inserts------------------------------*/
-insert into CLIENTE values(1,'Fabiola','Rodriguez','09/10/2023',1)
-insert into CLIENTE values(2,'Carlos','Rodriguez','15/03/2023',2)
-insert into CLIENTE values(3,'Lucia','Vargas','03/09/2023',1)
+insert into CLIENTE values(1,'Fabiola','Rodriguez','09/10/2023',1);
+insert into CLIENTE values(2,'Carlos','Rodriguez','15/03/2023',2);
+insert into CLIENTE values(3,'Lucia','Vargas','03/09/2023',1);
 
-insert into MEMBRESIAS values(1,'VIP','Activo','11/11/2023','11/12/2023',1)
-insert into MEMBRESIAS values(2,'STANDARD','Activo','15/10/2023','15/11/2023',2)
-insert into MEMBRESIAS values(3,'VIP','Activo','03/11/2023','03/12/2023',3)
+insert into MEMBRESIAS values(1,'VIP','Activo','11/11/2023','11/12/2023',1);
+insert into MEMBRESIAS values(2,'STANDARD','Activo','15/10/2023','15/11/2023',2);
+insert into MEMBRESIAS values(3,'VIP','Activo','03/11/2023','03/12/2023',3);
 
-INSERT INTO RESERVAS (ID_RESERVA, FECHA, HORA, ESTADO, ID_CLIENTE)
-VALUES (1, TO_DATE('2023-10-30', 'YYYY-MM-DD'), TO_TIMESTAMP('14:00', 'HH24:MI:SS'), 'Confirmada', 2),
-    (2, TO_DATE('2023-11-05', 'YYYY-MM-DD'), TO_TIMESTAMP('09:30', 'HH24:MI:SS'), 'Pendiente', 1),
-    (3, TO_DATE('2023-11-10', 'YYYY-MM-DD'), TO_TIMESTAMP('18:00', 'HH24:MI:SS'), 'Confirmada', 3);
-    
-INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
-VALUES
-    (1, 'Lunes', TO_DATE('08:30', 'HH24:MI:SS'), TO_TIMESTAMP('10:00', 'HH24:MI:SS'), 'Clase de Yoga'),
-    (2, 'Martes', TO_DATE('14:00', 'HH24:MI:SS'), TO_TIMESTAMP('15:30', 'HH24:MI:SS'), 'Entrenamiento Funcional'),
-    (3, 'Miercoles', TO_DATE('18:30', 'HH24:MI:SS'), TO_TIMESTAMP('20:00', 'HH24:MI:SS'), 'Spinning');
+insert into HORARIO values(1,'Lunes', TO_TIMESTAMP('14:00', 'HH24:MI:SS'), TO_TIMESTAMP('17:00', 'HH24:MI:SS'));
+insert into HORARIO values(2,'Martes', TO_TIMESTAMP('16:00', 'HH24:MI:SS'), TO_TIMESTAMP('18:00', 'HH24:MI:SS'));
+insert into HORARIO values(3,'Martes', TO_TIMESTAMP('18:00', 'HH24:MI:SS'), TO_TIMESTAMP('20:00', 'HH24:MI:SS'));
 
--- Insertar datos de ejemplo en la tabla FACTURA
-INSERT INTO FACTURA (ID_FACTURA, ID_CLIENTE, MONTO, FECHA, DESCRIPCION)
-VALUES
-    (1, 1, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membresia'),
-    (2, 2, 30000, TO_DATE('2023-11-05', 'YYYY-MM-DD'), 'Pago de clases de yoga'),
-    (3, 3, 75000, TO_DATE('2023-11-10', 'YYYY-MM-DD'), 'Pago de entrenamiento personal');
+insert into EMPLEADO values(1,'Felipe','Castro','01/10/2023', 'Activo', 400000, 'fcatro@gmail.com', 78125878, 'Instructor');
+insert into EMPLEADO values(2,'Alonso','Rojas','11/02/2023', 'Activo', 250000, 'arojas@gmail.com', 45715684, 'Secretario');
+insert into EMPLEADO values(3,'Kristel','Lopez','05/03/2023', 'Activo', 400000, 'klopez@gmail.com', 78965812, 'Instructor');
+
+insert into CLASES values(1,'Funcional','Activa',15,1,1);
+insert into CLASES values(2,'Boxing','Activa',15,3,2);
+insert into CLASES values(3,'Yoga','Activa',10,3,3);
+
+insert into RESERVAS values(1, 'Confirmada', 2, 1);
+insert into RESERVAS values(2, 'Pendiente', 1, 3);
+insert into RESERVAS values(3, 'Confirmada', 3, 2);
+
+insert into FACTURA values(1, 1, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membresia');
+insert into FACTURA values(2, 2, 30000, TO_DATE('2023-11-05', 'YYYY-MM-DD'), 'Pago de clases de yoga');
+insert into FACTURA values(3, 3, 75000, TO_DATE('2023-11-10', 'YYYY-MM-DD'), 'Pago de entrenamiento personal');
+
 
 /*Ver los inserts*/
 SELECT * FROM CLIENTE;
@@ -143,19 +181,20 @@ SELECT * FROM RESERVAS;
 SELECT * FROM HORARIO;
 SELECT * FROM FACTURA;
 
+/*-------------------------PROCEDIMIENTOS ALMACENADOS-------------------*/
 
 /*---------SP para insertar clientes-------------------*/
 CREATE OR REPLACE PROCEDURE INSERT_CLIENTE(
 	   c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE,
 	   c_NOMBRE IN CLIENTE.NOMBRE%TYPE,
 	   c_APELLIDO IN CLIENTE.APELLIDO %TYPE,
-	   c_FECHA_INGRESO IN CLIENTE.FECHA_INGRESO%TYPE,
+	   c_FECHAINGRESO IN CLIENTE.FECHAINGRESO%TYPE,
 	   c_MENSUALIDAD IN CLIENTE.MENSUALIDAD%TYPE)
-IS
+AS
 BEGIN
 
-  INSERT INTO CLIENTE ("ID_CLIENTE", "NOMBRE", "APELLIDO", "FECHA_INGRESO","MENSUALIDAD") 
-  VALUES (c_ID_CLIENTE, c_NOMBRE, c_APELLIDO, c_FECHA_INGRESO, c_MENSUALIDAD);
+  INSERT INTO CLIENTE ("ID_CLIENTE", "NOMBRE", "APELLIDO", "FECHAINGRESO","MENSUALIDAD") 
+  VALUES (c_ID_CLIENTE, c_NOMBRE, c_APELLIDO, c_FECHAINGRESO, c_MENSUALIDAD);
   COMMIT;
   DBMS_OUTPUT.PUT_LINE('El registro de ' || c_NOMBRE || ' ha sido insertado');
 
@@ -218,7 +257,7 @@ BEGIN
 END;
 
 /*---------------correr el procedimiento---------------*/
-EXEC INSERT_MEMBRESIA(4,'Standard','Activo','10/11/2023','10/12/2023',4);
+EXEC INSERT_MEMBRESIA(4,'Standard','Activo','10/11/2023','10/12/2023',1);
 
 /*---------SP para modificar el estado de membresia segun el ID del cliente-------------------*/
 CREATE OR REPLACE PROCEDURE UPDATE_MEMBRESIAS(
@@ -251,9 +290,139 @@ BEGIN
 END;
 
 /*---------------correr el procedimiento---------------*/
-EXEC DELETE_MEMBRESIA(4)
+EXEC DELETE_MEMBRESIA(4);
 
--- Funciones para la tabla EMPLEADO --
+/*---------SP para modificar el estado de la reserva de los clientes-------------------*/
+CREATE OR REPLACE PROCEDURE UPDATE_RESERVA(
+	   r_ID_RESERVA IN RESERVAS.ID_RESERVA%TYPE,
+	   r_ESTADO IN RESERVAS.ESTADO%TYPE)
+AS
+BEGIN
+
+  UPDATE RESERVAS
+    SET ESTADO = r_ESTADO
+    WHERE ID_RESERVA = r_ID_RESERVA;
+    COMMIT;
+  DBMS_OUTPUT.PUT_LINE('El registro del estado con ID: ' || r_ID_RESERVA || ' ha sido modificado');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC UPDATE_RESERVA(1,'Pendiente');
+
+/*---------SP para eliminar reservas-------------------*/
+CREATE OR REPLACE PROCEDURE DELETE_RESERVAS(
+	   r_ID_RESERVA IN RESERVAS.ID_RESERVA %TYPE)
+AS
+BEGIN
+
+  DELETE FROM RESERVAS
+    WHERE ID_RESERVA = r_ID_RESERVA;
+  DBMS_OUTPUT.PUT_LINE('La reserva con ID: ' || r_ID_RESERVA || ' ha sido eliminada');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC DELETE_RESERVAS(3);
+
+--------------CRUD de Horarios-------------------------------------
+CREATE OR REPLACE PROCEDURE INSERT_HORARIO(
+    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+    h_DIA IN HORARIO.DIA%TYPE,
+    h_HORA_INICIO IN HORARIO.HORA_INICIO%TYPE,
+    h_HORA_FIN IN HORARIO.HORA_FIN%TYPE,
+    h_CLASE IN HORARIO.CLASE%TYPE)
+AS
+BEGIN
+    INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
+    VALUES (h_ID_HORARIO, h_DIA, h_HORA_INICIO, h_HORA_FIN, h_CLASE);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido insertado.');
+END;
+
+/*---------SP para modificar la clase segun el horario-------------------*/
+CREATE OR REPLACE PROCEDURE UPDATE_HORARIO(
+	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+	   h_CLASE IN HORARIO.CLASE%TYPE)
+AS
+BEGIN
+
+  UPDATE HORARIO
+    SET CLASE = h_CLASE
+    WHERE ID_HORARIO = r_ID_HORARIO;
+    COMMIT;
+  DBMS_OUTPUT.PUT_LINE('La clase con el horario ID de: ' || h_ID_HORARIO || ' ha sido modificado');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC UPDATE_HORARIO(1,2);
+
+/*---------SP para eliminar horarios-------------------*/
+CREATE OR REPLACE PROCEDURE DELETE_HORARIO(
+	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE)
+AS
+BEGIN
+
+  DELETE FROM HORARIO
+    WHERE ID_HORARIO = h_ID_HORARIO;
+  DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido eliminado');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC DELETE_HORARIO(3);
+
+----------------------CRUD para facturas------------------------------
+CREATE OR REPLACE PROCEDURE INSERT_FACTURA(
+    f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
+    f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE,
+    f_MONTO IN FACTURA.MONTO%TYPE,
+    f_FECHA IN FACTURA.FECHA%TYPE,
+    f_DESCRIPCION IN FACTURA.DESCRIPCION%TYPE)
+AS
+BEGIN
+    INSERT INTO FACTURA(ID_FACTURA, ID_CLIENTE, MONTO, FECHA, DESCRIPCION)
+    VALUES (f_ID_FACTURA, f_ID_CLIENTE, f_MONTO, f_FECHA, f_DESCRIPCION);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro de factura con ID: ' || f_ID_FACTURA || ' ha sido insertado.');
+END;
+
+/*---------SP para modificar la clase segun el factura-------------------*/
+CREATE OR REPLACE PROCEDURE UPDATE_FACTURA(
+	   f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
+	   f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE)
+AS
+BEGIN
+
+  UPDATE FACTURA
+    SET ID_CLIENTE = f_ID_CLIENTE
+    WHERE ID_FACTURA = f_ID_FACTURA;
+    COMMIT;
+  DBMS_OUTPUT.PUT_LINE('La factura con el ID: ' || f_ID_FACTURA || ' ha sido modificado');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC UPDATE_FACTURA(1,'Cardio');
+
+/*---------SP para eliminar factura-------------------*/
+CREATE OR REPLACE PROCEDURE DELETE_FACTURA(
+	   f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE)
+AS
+BEGIN
+
+  DELETE FROM FACTURA
+    WHERE ID_FACTURA = f_ID_FACTURA;
+  DBMS_OUTPUT.PUT_LINE('La factura con ID: ' || f_ID_FACTURA || ' ha sido eliminada');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC DELETE_FACTURA(3);
+
+
+------------------------- Funciones para la tabla EMPLEADO ---------------
 CREATE OR REPLACE FUNCTION GET_ALL_EMPLEADOS
 RETURN SYS_REFCURSOR
 IS
@@ -299,7 +468,6 @@ END;
 /
 
 
-C:\Users\Fabiola\AppData\Roaming\SQL Developer\mywork
 
 -- Cursor para la tabla FACTURA donde el monto es de 50000
     CURSOR c_factura IS
@@ -419,105 +587,6 @@ FROM FACTURA;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Factura;
 
-/*---------SP para modificar el estado de la reserva de los clientes-------------------*/
-CREATE OR REPLACE PROCEDURE UPDATE_RESERVA(
-	   r_ID_RESERVA IN RESERVAS.ID_RESERVA%TYPE,
-	   r_ESTADO IN RESERVAS.ESTADO%TYPE)
-AS
-BEGIN
-
-  UPDATE RESERVAS
-    SET ESTADO = r_ESTADO
-    WHERE ID_RESERVA = r_ID_RESERVA;
-    COMMIT;
-  DBMS_OUTPUT.PUT_LINE('El registro del estado con ID: ' || r_ID_RESERVA || ' ha sido modificado');
-
-END;
-
-/*---------------correr el procedimiento---------------*/
-EXEC UPDATE_RESERVA(1,'Pendiente');
-
-/*---------SP para modificar la clase segun el horario-------------------*/
-CREATE OR REPLACE PROCEDURE UPDATE_HORARIO(
-	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
-	   h_CLASE IN HORARIO.CLASE%TYPE)
-AS
-BEGIN
-
-  UPDATE HORARIO
-    SET CLASE = h_CLASE
-    WHERE ID_HORARIO = r_ID_HORARIO;
-    COMMIT;
-  DBMS_OUTPUT.PUT_LINE('La clase con el horario ID de: ' || h_ID_HORARIO || ' ha sido modificado');
-
-END;
-
-/*---------------correr el procedimiento---------------*/
-EXEC UPDATE_HORARIO(1,2);
-
-
-/*---------SP para modificar la clase segun el horario-------------------*/
-CREATE OR REPLACE PROCEDURE UPDATE_FACTURA(
-	   f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
-	   f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE)
-AS
-BEGIN
-
-  UPDATE FACTURA
-    SET ID_CLIENTE = f_ID_CLIENTE
-    WHERE ID_FACTURA = f_ID_FACTURA;
-    COMMIT;
-  DBMS_OUTPUT.PUT_LINE('La factura con el ID: ' || f_ID_FACTURA || ' ha sido modificado');
-
-END;
-
-/*---------------correr el procedimiento---------------*/
-EXEC UPDATE_FACTURA(1,'Cardio');
-
-/*---------SP para eliminar reservas-------------------*/
-CREATE OR REPLACE PROCEDURE DELETE_RESERVAS(
-	   r_ID_RESERVA IN RESERVAS.ID_RESERVA %TYPE)
-AS
-BEGIN
-
-  DELETE FROM RESERVAS
-    WHERE ID_RESERVA = r_ID_RESERVA;
-  DBMS_OUTPUT.PUT_LINE('La reserva con ID: ' || r_ID_RESERVA || ' ha sido eliminada');
-
-END;
-
-/*---------------correr el procedimiento---------------*/
-EXEC DELETE_RESERVAS(3);
-
-/*---------SP para eliminar horarios-------------------*/
-CREATE OR REPLACE PROCEDURE DELETE_HORARIO(
-	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE)
-AS
-BEGIN
-
-  DELETE FROM HORARIO
-    WHERE ID_HORARIO = h_ID_HORARIO;
-  DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido eliminado');
-
-END;
-
-/*---------------correr el procedimiento---------------*/
-EXEC DELETE_HORARIO(3);
-
-/*---------SP para eliminar horarios-------------------*/
-CREATE OR REPLACE PROCEDURE DELETE_FACTURA(
-	   f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE)
-AS
-BEGIN
-
-  DELETE FROM FACTURA
-    WHERE ID_FACTURA = f_ID_FACTURA;
-  DBMS_OUTPUT.PUT_LINE('La factura con ID: ' || f_ID_FACTURA || ' ha sido eliminada');
-
-END;
-
-/*---------------correr el procedimiento---------------*/
-EXEC DELETE_FACTURA(3);
 
 --RESTO DEL CRUD DE EMPLEADO
 -- Leer todos los empleados
@@ -611,23 +680,8 @@ BEGIN
 END;
 
 	
---CRUD de Horarios
-CREATE OR REPLACE PROCEDURE INSERT_HORARIO(
-    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
-    h_DIA IN HORARIO.DIA%TYPE,
-    h_HORA_INICIO IN HORARIO.HORA_INICIO%TYPE,
-    h_HORA_FIN IN HORARIO.HORA_FIN%TYPE,
-    h_CLASE IN HORARIO.CLASE%TYPE)
-AS
-BEGIN
-    INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
-    VALUES (h_ID_HORARIO, h_DIA, h_HORA_INICIO, h_HORA_FIN, h_CLASE);
-    COMMIT;
-    DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido insertado.');
-END;
-
 --Actualizar horarios--
-CREATE OR REPLACE PROCEDURE UPDATE_HORARIO(
+/* CREATE OR REPLACE PROCEDURE UPDATE_HORARIO(
     h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
     h_CLASE IN HORARIO.CLASE%TYPE)
 AS
@@ -637,10 +691,10 @@ BEGIN
     WHERE ID_HORARIO = h_ID_HORARIO;
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('La clase con el horario ID de: ' || h_ID_HORARIO || ' ha sido modificada.');
-END;
+END;*/
 
 --Eliminar horarios--
-CREATE OR REPLACE PROCEDURE DELETE_HORARIO(
+/*CREATE OR REPLACE PROCEDURE DELETE_HORARIO(
     h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE)
 AS
 BEGIN
@@ -648,7 +702,7 @@ BEGIN
     WHERE ID_HORARIO = h_ID_HORARIO;
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido eliminado.');
-END;
+END;*/
 
 --Consulta horario--
 CREATE OR REPLACE FUNCTION GET_ALL_HORARIOS
@@ -662,23 +716,8 @@ BEGIN
 END;
 
 
---CRUD para facturas--
-CREATE OR REPLACE PROCEDURE INSERT_FACTURA(
-    f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
-    f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE,
-    f_MONTO IN FACTURA.MONTO%TYPE,
-    f_FECHA IN FACTURA.FECHA%TYPE,
-    f_DESCRIPCION IN FACTURA.DESCRIPCION%TYPE)
-AS
-BEGIN
-    INSERT INTO FACTURA(ID_FACTURA, ID_CLIENTE, MONTO, FECHA, DESCRIPCION)
-    VALUES (f_ID_FACTURA, f_ID_CLIENTE, f_MONTO, f_FECHA, f_DESCRIPCION);
-    COMMIT;
-    DBMS_OUTPUT.PUT_LINE('El registro de factura con ID: ' || f_ID_FACTURA || ' ha sido insertado.');
-END;
-
 --Actualizar cliente de factura--
-CREATE OR REPLACE PROCEDURE UPDATE_FACTURA(
+/*CREATE OR REPLACE PROCEDURE UPDATE_FACTURA(
     f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
     f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE)
 AS
@@ -688,10 +727,10 @@ BEGIN
     WHERE ID_FACTURA = f_ID_FACTURA;
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('El cliente de la factura con ID: ' || f_ID_FACTURA || ' ha sido modificado.');
-END;
+END;*/
 
 --Eliminar factura--
-CREATE OR REPLACE PROCEDURE DELETE_FACTURA(
+/*CREATE OR REPLACE PROCEDURE DELETE_FACTURA(
     f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE)
 AS
 BEGIN
@@ -699,7 +738,7 @@ BEGIN
     WHERE ID_FACTURA = f_ID_FACTURA;
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('El registro de factura con ID: ' || f_ID_FACTURA || ' ha sido eliminado.');
-END;
+END;*/
 
 --Consulta de facturas--
 CREATE OR REPLACE FUNCTION GET_ALL_FACTURAS
