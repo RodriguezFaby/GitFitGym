@@ -295,6 +295,48 @@ END;
 
 /*---------------correr el procedimiento---------------*/
 EXEC DELETE_MEMBRESIA(4);
+--------------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE INSERT_RESERVA(
+    r_ID_RESERVA IN INT,
+    r_ESTADO_RESERVA IN VARCHAR2,
+    r_ID_CLASE IN INT,
+    r_ID_CLIENTE IN INT
+) AS
+    c_ESPACIOS_DISPONIBLES INT;
+BEGIN
+    --Cuantos espacios hay disponibles en la clase
+    SELECT ESPACIOS INTO c_ESPACIOS_DISPONIBLES
+    FROM CLASES
+    WHERE ID_CLASE = r_ID_CLASE;
+    IF c_ESPACIOS_DISPONIBLES > 0 THEN
+        --Si hay espacios, se inserta la reserva
+        INSERT INTO RESERVAS (
+            ID_RESERVA,
+            ESTADO,
+            ID_CLASE,
+            ID_CLIENTE
+        ) VALUES (
+            r_ID_RESERVA,
+            r_ESTADO_RESERVA,
+            r_ID_CLASE,
+            r_ID_CLIENTE
+        );
+
+        --Se actualiza la tabla Clases y se elimina un espacio
+        UPDATE CLASES
+        SET ESPACIOS = c_ESPACIOS_DISPONIBLES - 1
+        WHERE ID_CLASE = r_ID_CLASE;
+        COMMIT;
+
+        DBMS_OUTPUT.PUT_LINE('La resrva fue creada y se reducio un espacio en la clase ' || r_ID_CLASE);
+    ELSE
+        -- Si no hay espacio
+        DBMS_OUTPUT.PUT_LINE('No hay suficiente espacio para esta clase.');
+    END IF;
+END INSERT_RESERVA;
+/
+-------------------------------------------------------------------------
+EXEC INSERT_RESERVA(6,'Activa',3,3);
 
 /*---------SP para modificar el estado de la reserva de los clientes-------------------*/
 CREATE OR REPLACE PROCEDURE UPDATE_RESERVA(
@@ -343,6 +385,10 @@ BEGIN
     DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido insertado.');
 END;
 
+/*---------------correr el procedimiento---------------*/
+EXEC INSERT_HORARIO(4,'Miercoles', TO_TIMESTAMP('18:00', 'HH24:MI:SS'), TO_TIMESTAMP('20:00', 'HH24:MI:SS'));
+
+
 
 /*---------SP para modificar el dia del horario-------------------*/
 CREATE OR REPLACE PROCEDURE UPDATE_HORARIO(
@@ -362,6 +408,42 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC UPDATE_HORARIO(3,'Lunes');
 
+/*---------SP para modificar la hora de inicio de un horario-------------------*/
+CREATE OR REPLACE PROCEDURE UPDATE_HORARIO_INICIO(
+	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+	   h_HORA_INICIO IN HORARIO.HORA_INICIO%TYPE)
+AS
+BEGIN
+
+  UPDATE HORARIO
+    SET HORA_INICIO = h_HORA_INICIO
+    WHERE ID_HORARIO = h_ID_HORARIO;
+    COMMIT;
+  DBMS_OUTPUT.PUT_LINE('La hora de inicio para el horario con ID: ' || h_ID_HORARIO || ' ha sido modificada a ' || h_HORA_INICIO);
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC UPDATE_HORARIO_INICIO(3,TO_TIMESTAMP('14:00', 'HH24:MI:SS'));
+
+/*---------SP para modificar la hora de finalizacion de un horario-------------------*/
+CREATE OR REPLACE PROCEDURE UPDATE_HORARIO_FIN(
+	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+	   h_HORA_FIN IN HORARIO.HORA_FIN%TYPE)
+AS
+BEGIN
+
+  UPDATE HORARIO
+    SET HORA_FIN = h_HORA_FIN
+    WHERE ID_HORARIO = h_ID_HORARIO;
+    COMMIT;
+  DBMS_OUTPUT.PUT_LINE('La hora de finalizacion para el horario con ID: ' || h_ID_HORARIO || ' ha sido modificada a ' || h_HORA_FIN);
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC UPDATE_HORARIO_FIN(3,TO_TIMESTAMP('18:00', 'HH24:MI:SS'));
+
 /*---------SP para eliminar horarios-------------------*/
 CREATE OR REPLACE PROCEDURE DELETE_HORARIO(
 	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE)
@@ -377,6 +459,7 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC DELETE_HORARIO(4);
 
+
 ----------------------CRUD para facturas------------------------------
 CREATE OR REPLACE PROCEDURE INSERT_FACTURA(
     f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
@@ -391,6 +474,9 @@ BEGIN
     COMMIT;
     DBMS_OUTPUT.PUT_LINE('El registro de factura con ID: ' || f_ID_FACTURA || ' ha sido insertado.');
 END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC INSERT_FACTURA(4, 2, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membresia');
 
 /*---------SP para modificar el cliente en la tabla FACTURA-------------------*/
 CREATE OR REPLACE PROCEDURE UPDATE_FACTURA(
@@ -425,6 +511,146 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC DELETE_FACTURA(3);
 
+/*--------------------CRUD tabla CLASE---------------------------------------*/
+/*---------SP para insertar clases-------------------*/
+CREATE OR REPLACE PROCEDURE INSERT_CLASE(
+	   c_ID_CLASE IN CLASES.ID_CLASE%TYPE,
+       c_DESCRIPCION IN CLASES.DESCRIPCION%TYPE,
+	   c_ESTADO IN CLASES.ESTADO%TYPE,
+	   c_ESPACIOS IN CLASES.ESPACIOS%TYPE,
+	   c_ID_EMPLEADO IN CLASES.ID_EMPLEADO%TYPE,
+       c_ID_HORARIO IN CLASES.ID_HORARIO%TYPE)
+IS
+BEGIN
+
+  INSERT INTO CLASES("ID_CLASE", "DESCRIPCION", "ESTADO", "ESPACIOS", "ID_EMPLEADO","ID_HORARIO") 
+  VALUES (c_ID_CLASE, c_DESCRIPCION, c_ESTADO, c_ESPACIOS, c_ID_EMPLEADO, c_ID_HORARIO);
+  COMMIT;
+  DBMS_OUTPUT.PUT_LINE('El registro para la clase con ID ' || c_ID_CLASE|| ' ha sido insertado');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC INSERT_CLASE(4,'GAP','Activa',3,1,1);
+
+/*---------SP para modificar el Empleado encargado de una clase segun el ID de la clase----*/
+CREATE OR REPLACE PROCEDURE UPDATE_CLASE_EMPLEADO(
+	   c_ID_CLASE  IN CLASES.ID_CLASE %TYPE,
+	   c_ID_EMPLEADO IN CLASES.ID_EMPLEADO%TYPE)
+AS
+BEGIN
+
+  UPDATE CLASES
+    SET ID_EMPLEADO = c_ID_EMPLEADO
+    WHERE ID_CLASE = c_ID_CLASE;
+    COMMIT;
+  DBMS_OUTPUT.PUT_LINE('EL encargado de impartir la clase ahora es el instructor con ID: ' || c_ID_EMPLEADO );
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC UPDATE_CLASE_EMPLEADO(4,2);
+
+/*---------SP para eliminar clases-------------------*/
+CREATE OR REPLACE PROCEDURE DELETE_CLASE(
+	   c_ID_CLASE IN CLASES.ID_CLASE%TYPE)
+AS
+BEGIN
+
+  DELETE FROM CLASES
+    WHERE ID_CLASE = c_ID_CLASE;
+  DBMS_OUTPUT.PUT_LINE('La clase con el ID: ' || c_ID_CLASE || ' ha sido eliminada');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC DELETE_CLASE(4)
+
+/*---------SP para modificar el nombre de la clase segun el ID ----*/
+CREATE OR REPLACE PROCEDURE UPDATE_CLASE_DESCRIPCION(
+	   c_ID_CLASE  IN CLASES.ID_CLASE %TYPE,
+	   c_DESCRIPCION IN CLASES.DESCRIPCION%TYPE)
+AS
+BEGIN
+
+  UPDATE CLASES
+    SET DESCRIPCION = c_DESCRIPCION
+    WHERE ID_CLASE = c_ID_CLASE;
+    COMMIT;
+  DBMS_OUTPUT.PUT_LINE('La clase con ID: ' || c_ID_CLASE || ' ahora se llama ' || c_DESCRIPCION);
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC UPDATE_CLASE_DESCRIPCION(3,'Kickbox');
+
+/*--------------------CRUD tabla Empleado---------------------------------------*/
+/*---------SP para insertar Empleados-------------------*/
+CREATE OR REPLACE PROCEDURE INSERT_EMPLEADO(
+	   e_ID_EMPLEADO IN EMPLEADO.ID_EMPLEADO%TYPE,
+	   e_NOMBRE IN EMPLEADO.NOMBRE%TYPE,
+	   e_APELLIDO IN EMPLEADO.APELLIDO%TYPE,
+	   e_FECHA_INICIO IN EMPLEADO.FECHA_INICIO%TYPE,
+	   e_ESTADO IN EMPLEADO.ESTADO%TYPE,
+	   e_SALARIO IN EMPLEADO.SALARIO%TYPE,
+	   e_EMAIL IN EMPLEADO.EMAIL%TYPE,
+	   e_TELEFONO IN EMPLEADO.TELEFONO%TYPE,
+	   e_PUESTO IN EMPLEADO.PUESTO%TYPE)
+IS
+BEGIN
+
+  INSERT INTO EMPLEADO("ID_EMPLEADO", "NOMBRE", "APELLIDO", "FECHA_INICIO","ESTADO","SALARIO","EMAIL","TELEFONO","PUESTO") 
+  VALUES (e_ID_EMPLEADO, e_NOMBRE, e_APELLIDO, e_FECHA_INICIO, e_ESTADO, e_SALARIO, e_EMAIL, e_TELEFONO, e_PUESTO);
+  COMMIT;
+  DBMS_OUTPUT.PUT_LINE('El registro del empleado ' || e_NOMBRE || ' ' || e_APELLIDO || ' ha sido insertado');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC INSERT_EMPLEADO(6,'Lili','Lopez','10/11/2010','Activo',500000,'lil@.com',5462258, 'Oficinista');
+
+
+/*---------SP para modificar el salario de un empleado----*/
+CREATE OR REPLACE PROCEDURE UPDATE_EMPLEADO_SALARIO 
+AS
+BEGIN
+    FOR EMPLEADO IN (SELECT * FROM EMPLEADO) LOOP
+        DECLARE
+            anios_trabajados INT;
+        BEGIN
+            -- Calcular los anios
+            SELECT TRUNC(MONTHS_BETWEEN(SYSDATE, EMPLEADO.FECHA_INICIO) / 12) INTO anios_trabajados
+            FROM DUAL;
+
+            -- Incrementar salario si tiene mas de 5 anios a un 5%
+            IF anios_trabajados > 5 THEN
+                UPDATE EMPLEADO
+                SET SALARIO = SALARIO * 1.05
+                WHERE ID_EMPLEADO = EMPLEADO.ID_EMPLEADO;
+            END IF;
+        END;
+    END LOOP;
+    COMMIT;
+END UPDATE_EMPLEADO_SALARIO;
+
+/*---------------correr el procedimiento---------------*/
+EXEC UPDATE_EMPLEADO_SALARIO;
+
+--Eliminar empleado inactivo con SP
+CREATE OR REPLACE PROCEDURE EliminarEmpleadoInactivo AS
+BEGIN
+    -- Eliminar empleados inactivos
+    DELETE FROM EMPLEADO WHERE ESTADO = 'Inactivo';
+    
+    -- Confirmar la transaccion
+    COMMIT;
+    
+    -- Mostrar mensaje de inactivo
+    DBMS_OUTPUT.PUT_LINE('Empleados inactivos eliminados correctamente.');
+END EliminarEmpleadoInactivo;
+
+/*---------------correr el procedimiento---------------*/
+EXEC EliminarEmpleadoInactivo;
 ------------------------------------------------------------------------------
 ------------------------- Funciones para la tabla EMPLEADO ---------------
 
@@ -608,22 +834,7 @@ WHERE ID_EMPLEADO = 1;
 -- Eliminar un empleado por ID
 DELETE FROM EMPLEADO WHERE ID_EMPLEADO = 1;
 
---Eliminar empleado inactivo con SP
-CREATE OR REPLACE PROCEDURE EliminarEmpleadoInactivo AS
-BEGIN
-    -- Eliminar empleados inactivos
-    DELETE FROM EMPLEADO WHERE ESTADO = 'Inactivo';
-    
-    -- Confirmar la transaccion
-    COMMIT;
-    
-    -- Mostrar mensaje de inactivo
-    DBMS_OUTPUT.PUT_LINE('Empleados inactivos eliminados correctamente.');
-END EliminarEmpleadoInactivo;
 
-BEGIN
-    EliminarEmpleadoInactivo;
-END;
 
 --FUNCION DE FACTURA DE SU FECHA DE INICIO HASTA HOY
 SELECT MONTHS_BETWEEN(FECHA_INICIO, SYSDATE) FROM EMPLEADO;
