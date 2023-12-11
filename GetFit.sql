@@ -935,6 +935,54 @@ END;
 	   FROM EMPLEADO
 	   WHERE ESTADO = 'Activo';
 
+   --Cursor clases canceladas--
+	CURSOR c_clases_canceladas IS
+	   SELECT *
+	   FROM CLASES
+	   WHERE ESTADO = 'Cancelada';
+
+   --Cursor membresias vencidas del último mes--
+	CURSOR c_membresias_vencidas_ultimo_mes IS
+	   SELECT *
+	   FROM MEMBRESIAS
+	   WHERE FECHA_EXPIRACION BETWEEN ADD_MONTHS(SYSDATE, -1) AND SYSDATE;
+
+   --Cursor de clases con espacios disponibles--
+	CURSOR c_clases_con_espacios_disponibles IS
+	   SELECT *
+	   FROM CLASES
+	   WHERE ESPACIOS > 0;
+
+   --Cursor para ver facturas del último mes--
+	CURSOR c_facturas_ultimo_mes IS
+	   SELECT *
+	   FROM FACTURA
+	   WHERE FECHA BETWEEN ADD_MONTHS(SYSDATE, -1) AND SYSDATE;
+
+   --Cursor membresías activas--
+	CURSOR c_membresias_activas IS
+	    SELECT *
+	    FROM MEMBRESIAS
+	    WHERE ESTADO = 'Activo';
+
+   --Cursor para ver clases activas--
+	CURSOR c_clases_activas IS
+	    SELECT *
+	    FROM CLASES
+	    WHERE ESTADO = 'Activa';
+   --Cursor para ver salarios con mayor ingreso--
+	CURSOR c_empleados_salario_alto IS
+	    SELECT *
+	    FROM EMPLEADO
+	    WHERE SALARIO > 50000;
+
+   --Clientes con mensualidad alta--
+	CURSOR c_clientes_mensualidad_alta IS
+	    SELECT *
+	    FROM CLIENTE
+	    WHERE MENSUALIDAD > 1;
+
+
         -- Insertar datos en la tabla RESERVAS
 BEGIN
     FOR reserva IN c_reservas
