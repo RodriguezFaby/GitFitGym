@@ -908,7 +908,33 @@ END;
    -- Cursor para la tabla EMPLEADO
    CURSOR c_empleado IS
 	SELECT * FROM EMPLEADO;
-   
+
+   -- Cursor membresías venciadas--
+	CURSOR c_clientes_membresia_vencida IS
+	   SELECT *
+	   FROM CLIENTE c
+	   JOIN MEMBRESIAS m ON c.ID_CLIENTE = m.ID_CLIENTE
+	   WHERE m.FECHA_EXPIRACION < SYSDATE;
+	
+   -- Clases por instructor--
+	CURSOR c_clases_por_instructor IS
+	   SELECT ID_EMPLEADO, COUNT(*) AS CANTIDAD_CLASES
+	   FROM CLASES
+	   WHERE ESTADO = 'Activa'
+	   GROUP BY ID_EMPLEADO;
+
+   --Cursor facturas pendientes--
+    	CURSOR c_reservas_pendientes IS
+	   SELECT *
+	   FROM RESERVAS
+	   WHERE ESTADO = 'Pendiente';
+
+   --Cursor empleados activos únicamente--
+	CURSOR c_empleados_activos IS
+	   SELECT *
+	   FROM EMPLEADO
+	   WHERE ESTADO = 'Activo';
+
         -- Insertar datos en la tabla RESERVAS
 BEGIN
     FOR reserva IN c_reservas
