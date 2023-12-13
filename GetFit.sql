@@ -1260,3 +1260,220 @@ BEGIN
         SELECT * FROM FACTURA;
     RETURN factura_cursor;
 END;
+
+--PAQUETES--
+
+CREATE OR REPLACE PACKAGE ClientePackage AS
+    PROCEDURE InsertarCliente(
+        p_ID_CLIENTE IN NUMBER,
+        p_NOMBRE IN VARCHAR2,
+        p_APELLIDO IN VARCHAR2,
+        p_FECHAINGRESO IN DATE,
+        p_MENSUALIDAD IN NUMBER
+    );
+
+    PROCEDURE ActualizarMensualidad(
+        p_ID_CLIENTE IN NUMBER,
+        p_NUEVA_MENSUALIDAD IN NUMBER
+    );
+
+    PROCEDURE EliminarCliente(
+        p_ID_CLIENTE IN NUMBER
+    );
+
+    FUNCTION ObtenerClientes RETURN SYS_REFCURSOR;
+END ClientePackage;
+/
+
+CREATE OR REPLACE PACKAGE MembresiaPackage AS
+    PROCEDURE InsertarMembresia(
+        p_ID_MEMBRESIA IN NUMBER,
+        p_TIPO IN VARCHAR2,
+        p_ESTADO IN VARCHAR2,
+        p_FECHA_INICIO IN DATE,
+        p_FECHA_EXPIRACION IN DATE,
+        p_ID_CLIENTE IN NUMBER
+    );
+
+    PROCEDURE ActualizarEstadoMembresia(
+        p_ID_CLIENTE IN NUMBER,
+        p_NUEVO_ESTADO IN VARCHAR2
+    );
+
+    PROCEDURE EliminarMembresia(
+        p_ID_MEMBRESIA IN NUMBER
+    );
+
+    FUNCTION ObtenerMembresias RETURN SYS_REFCURSOR;
+END MembresiaPackage;
+/
+
+CREATE OR REPLACE PACKAGE EmpleadoPackage AS
+    PROCEDURE InsertarEmpleado(
+        p_ID_EMPLEADO IN NUMBER,
+        p_NOMBRE IN VARCHAR2,
+        p_APELLIDO IN VARCHAR2,
+        p_FECHA_INICIO IN DATE,
+        p_ESTADO IN VARCHAR2,
+        p_SALARIO IN NUMBER,
+        p_EMAIL IN VARCHAR2,
+        p_TELEFONO IN NUMBER,
+        p_PUESTO IN VARCHAR2
+    );
+
+    PROCEDURE ActualizarSalario(
+        p_ID_EMPLEADO IN NUMBER,
+        p_NUEVO_SALARIO IN NUMBER
+    );
+
+    PROCEDURE EliminarEmpleado(
+        p_ID_EMPLEADO IN NUMBER
+    );
+
+    FUNCTION ObtenerEmpleados RETURN SYS_REFCURSOR;
+END EmpleadoPackage;
+/
+
+CREATE OR REPLACE PACKAGE ClasePackage AS
+    PROCEDURE InsertarClase(
+        p_ID_CLASE IN NUMBER,
+        p_DESCRIPCION IN VARCHAR2,
+        p_ESTADO IN VARCHAR2,
+        p_ESPACIOS IN NUMBER,
+        p_ID_EMPLEADO IN NUMBER,
+        p_ID_HORARIO IN NUMBER
+    );
+
+    PROCEDURE ActualizarEstadoClase(
+        p_ID_CLASE IN NUMBER,
+        p_NUEVO_ESTADO IN VARCHAR2
+    );
+
+    PROCEDURE EliminarClase(
+        p_ID_CLASE IN NUMBER
+    );
+
+    FUNCTION ObtenerClases RETURN SYS_REFCURSOR;
+END ClasePackage;
+/
+
+CREATE OR REPLACE PACKAGE ReservaPackage AS
+    PROCEDURE InsertarReserva(
+        p_ID_RESERVA IN NUMBER,
+        p_ESTADO IN VARCHAR2,
+        p_ID_CLASE IN NUMBER,
+        p_ID_CLIENTE IN NUMBER
+    );
+
+    PROCEDURE ActualizarEstadoReserva(
+        p_ID_RESERVA IN NUMBER,
+        p_NUEVO_ESTADO IN VARCHAR2
+    );
+
+    PROCEDURE EliminarReserva(
+        p_ID_RESERVA IN NUMBER
+    );
+
+    FUNCTION ObtenerReservas RETURN SYS_REFCURSOR;
+END ReservaPackage;
+/
+
+CREATE OR REPLACE PACKAGE HorarioPackage AS
+    PROCEDURE InsertarHorario(
+        p_ID_HORARIO IN NUMBER,
+        p_DIA IN VARCHAR2,
+        p_HORA_INICIO IN TIMESTAMP,
+        p_HORA_FIN IN TIMESTAMP
+    );
+
+    PROCEDURE ActualizarDiaHorario(
+        p_ID_HORARIO IN NUMBER,
+        p_NUEVO_DIA IN VARCHAR2
+    );
+
+    PROCEDURE EliminarHorario(
+        p_ID_HORARIO IN NUMBER
+    );
+
+    FUNCTION ObtenerHorarios RETURN SYS_REFCURSOR;
+END HorarioPackage;
+/
+
+CREATE OR REPLACE PACKAGE FacturaPackage AS
+    PROCEDURE InsertarFactura(
+        p_ID_FACTURA IN NUMBER,
+        p_ID_CLIENTE IN NUMBER,
+        p_MONTO IN NUMBER,
+        p_FECHA IN DATE,
+        p_DESCRIPCION IN VARCHAR2
+    );
+
+    PROCEDURE ActualizarMontoFactura(
+        p_ID_FACTURA IN NUMBER,
+        p_NUEVO_MONTO IN NUMBER
+    );
+
+    PROCEDURE EliminarFactura(
+        p_ID_FACTURA IN NUMBER
+    );
+
+    FUNCTION ObtenerFacturas RETURN SYS_REFCURSOR;
+END FacturaPackage;
+/
+
+CREATE OR REPLACE PACKAGE EquipoPackage AS
+    PROCEDURE InsertarEquipo(
+        p_ID_EQUIPO IN NUMBER,
+        p_NOMBRE IN VARCHAR2,
+        p_ESTADO IN VARCHAR2
+    );
+
+    PROCEDURE ActualizarEstadoEquipo(
+        p_ID_EQUIPO IN NUMBER,
+        p_NUEVO_ESTADO IN VARCHAR2
+    );
+
+    PROCEDURE EliminarEquipo(
+        p_ID_EQUIPO IN NUMBER
+    );
+
+    FUNCTION ObtenerEquipos RETURN SYS_REFCURSOR;
+END EquipoPackage;
+/
+
+CREATE OR REPLACE PACKAGE EvaluacionPackage AS
+    PROCEDURE InsertarEvaluacion(
+        p_ID_EVALUACION IN NUMBER,
+        p_FECHA IN DATE,
+        p_PUNTUACION IN NUMBER,
+        p_ID_CLIENTE IN NUMBER,
+        p_ID_EMPLEADO IN NUMBER
+    );
+
+    PROCEDURE ActualizarPuntuacionEvaluacion(
+        p_ID_EVALUACION IN NUMBER,
+        p_NUEVA_PUNTUACION IN NUMBER
+    );
+
+    PROCEDURE EliminarEvaluacion(
+        p_ID_EVALUACION IN NUMBER
+    );
+
+    FUNCTION ObtenerEvaluaciones RETURN SYS_REFCURSOR;
+END EvaluacionPackage;
+/
+
+CREATE OR REPLACE PACKAGE ReportePackage AS
+    FUNCTION GenerarReporteClientes RETURN SYS_REFCURSOR;
+
+    FUNCTION GenerarReporteMembresias RETURN SYS_REFCURSOR;
+
+    FUNCTION GenerarReporteIngresos(
+        p_FECHA_INICIO IN DATE,
+        p_FECHA_FIN IN DATE
+    ) RETURN SYS_REFCURSOR;
+END ReportePackage;
+/
+
+
+--PAQUETES FIN--
