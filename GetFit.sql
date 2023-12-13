@@ -891,7 +891,7 @@ END;
 
 
 -- Cursor para la tabla FACTURA donde el monto es de 50000
-    CURSOR c_factura IS
+   CURSOR c_factura IS
         SELECT 1 AS ID_FACTURA, 1 AS ID_CLIENTE, 50000 AS MONTO, TO_DATE('2023-10-30', 'YYYY-MM-DD') AS FECHA,
         'Pago de membresias' AS DESCRIPCION FROM DUAL;
 
@@ -909,7 +909,7 @@ END;
    CURSOR c_empleado IS
 	SELECT * FROM EMPLEADO;
 
-   -- Cursor membres√≠as venciadas--
+   -- Cursor membresias venciadas--
 	CURSOR c_clientes_membresia_vencida IS
 	   SELECT *
 	   FROM CLIENTE c
@@ -929,7 +929,7 @@ END;
 	   FROM RESERVAS
 	   WHERE ESTADO = 'Pendiente';
 
-   --Cursor empleados activos √∫nicamente--
+   --Cursor empleados activos unicamente--
 	CURSOR c_empleados_activos IS
 	   SELECT *
 	   FROM EMPLEADO
@@ -953,13 +953,13 @@ END;
 	   FROM CLASES
 	   WHERE ESPACIOS > 0;
 
-   --Cursor para ver facturas del √∫ltimo mes--
+   --Cursor para ver facturas del ultimo mes--
 	CURSOR c_facturas_ultimo_mes IS
 	   SELECT *
 	   FROM FACTURA
 	   WHERE FECHA BETWEEN ADD_MONTHS(SYSDATE, -1) AND SYSDATE;
 
-   --Cursor membres√≠as activas--
+   --Cursor membresias activas--
 	CURSOR c_membresias_activas IS
 	    SELECT *
 	    FROM MEMBRESIAS
@@ -1000,15 +1000,6 @@ BEGIN
     LOOP
         INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
         VALUES (horario.ID_HORARIO, horario.DIA, horario.HORA_INICIO, horario.HORA_FIN, horario.CLASE);
-    END LOOP;
-END;
-
-BEGIN
-    -- Insertar datos en la tabla FACTURA
-    FOR factura IN c_factura
-    LOOP
-        INSERT INTO FACTURA (ID_FACTURA, ID_CLIENTE, MONTO, FECHA, DESCRIPCION)
-        VALUES (factura.ID_FACTURA, factura.ID_CLIENTE, factura.MONTO, factura.FECHA, factura.DESCRIPCION);
     END LOOP;
 END;
 
@@ -1060,9 +1051,8 @@ SELECT * FROM Vista_Empleado;
 CREATE VIEW Vista_Reservas AS
 SELECT
     ID_RESERVA,
-    FECHA,
-    HORA,
     ESTADO,
+    ID_CLASE,
     ID_CLIENTE
 FROM RESERVAS;
 
@@ -1082,6 +1072,48 @@ FROM FACTURA;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Factura;
 
+--Vista Reservas Actuales
+CREATE OR REPLACE VIEW VISTA_RESERVAS_ACTUALES AS
+SELECT R.ID_RESERVA, R.ESTADO, C.NOMBRE AS NOMBRE_CLIENTE, CL.DESCRIPCION AS DESCRIPCION_CLASE
+FROM RESERVAS R
+JOIN CLIENTE C ON R.ID_CLIENTE = C.ID_CLIENTE
+JOIN CLASES CL ON R.ID_CLASE = CL.ID_CLASE
+WHERE R.ESTADO = 'Activa';
+
+SELECT * FROM VISTA_RESERVAS_ACTUALES;
+
+--Vista Membresias Activas
+CREATE OR REPLACE VIEW VISTA_MEMBRESIAS_ACTIVAS AS
+SELECT M.ID_MEMBRESIA, M.TIPO, M.ESTADO, C.NOMBRE AS NOMBRE_CLIENTE
+FROM MEMBRESIAS M
+JOIN CLIENTE C ON M.ID_CLIENTE = C.ID_CLIENTE
+WHERE M.ESTADO = 'Activo';
+
+SELECT * FROM VISTA_MEMBRESIAS_ACTIVAS;
+
+--Vista para Instructor y su clase
+CREATE OR REPLACE VIEW VISTA_INSTRUCTORES_CLASES AS
+SELECT E.NOMBRE AS NOMBRE_INSTRUCTOR, E.PUESTO, CL.DESCRIPCION AS DESCRIPCION_CLASE
+FROM EMPLEADO E
+JOIN CLASES CL ON E.ID_EMPLEADO = CL.ID_EMPLEADO;
+
+SELECT * FROM VISTA_INSTRUCTORES_CLASES;
+
+--Vista para facturas emitidas
+CREATE OR REPLACE VIEW VISTA_FACTURAS_EMITIDAS AS
+SELECT F.ID_FACTURA, F.MONTO, F.FECHA, C.NOMBRE AS NOMBRE_CLIENTE
+FROM FACTURA F
+JOIN CLIENTE C ON F.ID_CLIENTE = C.ID_CLIENTE;
+
+SELECT * FROM VISTA_FACTURAS_EMITIDAS;
+
+--Vista de Clientes y sus Membresias
+CREATE OR REPLACE VIEW VISTA_CLIENTES_MEMBRESIAS AS
+SELECT C.NOMBRE AS NOMBRE_CLIENTE, M.TIPO, M.FECHA_INICIO, M.FECHA_EXPIRACION
+FROM CLIENTE C
+JOIN MEMBRESIAS M ON C.ID_CLIENTE = M.ID_CLIENTE;
+
+SELECT * FROM VISTA_CLIENTES_MEMBRESIAS;
 
 --RESTO DEL CRUD DE EMPLEADO
 -- Leer todos los empleados
@@ -1229,72 +1261,4 @@ BEGIN
     OPEN factura_cursor FOR
         SELECT * FROM FACTURA;
     RETURN factura_cursor;
-END;
-
-/* Trigger que se dispara antes de ingresar o actualizar o eliminar un cliente para reflejar la fecha*/
-CREATE OR REPLACE TRIGGER actualizar_fecha_ultimo_mov
-BEFORE INSERT OR UPDATE OR DELETE ON AUD_CLIENTE
-FOR EACH ROW
-BEGIN
-    :new.FECHA_MOV := CURRENT_TIMESTAMP;
-END;
-
-/* Trigger de vencimiento de Membresia*/
-CREATE OR REPLACE TRIGGER Trg_Vencimiento_Membresia
-BEFORE INSERT OR UPDATE ON MEMBRESIAS
-FOR EACH ROW
-DECLARE
-    t_fecha_actual DATE;
-BEGIN
-    -- Obtener la fecha actual
-    SELECT SYSDATE INTO t_fecha_actual FROM DUAL;
-
-    -- Verificar si la fecha de vencimiento ha pasado
-    IF :new.FECHA_EXPIRACION < t_fecha_actual THEN
-        -- Marcar la membresÌa como "Vencida"
-        :new.ESTADO := 'Vencida';
-    END IF;
-END;
-
-/*Trigger para rechazar reserva en caso que no hayan despacios*/
-CREATE OR REPLACE TRIGGER trg_verificar_reserva
-BEFORE INSERT ON RESERVAS
-FOR EACH ROW
-DECLARE
-    v_cupos_disponibles INT;
-BEGIN
-    -- Obtener el n˙mero de espacios disponibles en la clase
-    SELECT (CLASES.ESPACIOS - NVL(COUNT(*), 0))
-    INTO v_cupos_disponibles
-    FROM RESERVAS
-    JOIN CLASES ON RESERVAS.ID_CLASE = CLASES.ID_CLASE
-    WHERE RESERVAS.ID_CLASE = :new.ID_CLASE
-    GROUP BY CLASES.ESPACIOS;
-
-    -- Verificar si hay espacios disponibles
-    IF v_cupos_disponibles <= 0 THEN
-        --Cuando no hay espacios disponibles
-        RAISE_APPLICATION_ERROR(-20001, 'No hay espacios disponibles en esta clase. La reserva ha sido rechazada.');
-    END IF;
-END;
-
-/* Trigger para renovacion automatica de membresia  */
-CREATE OR REPLACE TRIGGER trg_renovar_membresia
-BEFORE INSERT ON MEMBRESIAS
-FOR EACH ROW
-DECLARE
-    v_fecha_actual DATE;
-BEGIN
-    -- Obtener la fecha actual
-    SELECT SYSDATE INTO v_fecha_actual FROM DUAL;
-
-    -- Verificar si la fecha de vencimiento ha llegado
-    IF :new.FECHA_EXPIRACION <= v_fecha_actual THEN
-        -- Calcular la nueva fecha de inicio y de vencimiento para la renovaciÛn
-        :new.FECHA_INICIO := v_fecha_actual;
-        :new.FECHA_EXPIRACION := ADD_MONTHS(v_fecha_actual, 1); -- Por ejemplo, renovaciÛn por un mes
-
-        -- Opcional: Mostrar un mensaje de Èxito en la consola de salida
-        DBMS_OUTPUT.PUT_LINE('MembresÌa renovada autom·ticamente.');
-    END IF;
 END;
