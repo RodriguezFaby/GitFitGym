@@ -1231,3 +1231,70 @@ BEGIN
     RETURN factura_cursor;
 END;
 
+/* Trigger que se dispara antes de ingresar o actualizar o eliminar un cliente para reflejar la fecha*/
+CREATE OR REPLACE TRIGGER actualizar_fecha_ultimo_mov
+BEFORE INSERT OR UPDATE OR DELETE ON AUD_CLIENTE
+FOR EACH ROW
+BEGIN
+    :new.FECHA_MOV := CURRENT_TIMESTAMP;
+END;
+
+/* Trigger de vencimiento de Membresia*/
+CREATE OR REPLACE TRIGGER Trg_Vencimiento_Membresia
+BEFORE INSERT OR UPDATE ON MEMBRESIAS
+FOR EACH ROW
+DECLARE
+    t_fecha_actual DATE;
+BEGIN
+    -- Obtener la fecha actual
+    SELECT SYSDATE INTO t_fecha_actual FROM DUAL;
+
+    -- Verificar si la fecha de vencimiento ha pasado
+    IF :new.FECHA_EXPIRACION < t_fecha_actual THEN
+        -- Marcar la membresía como "Vencida"
+        :new.ESTADO := 'Vencida';
+    END IF;
+END;
+
+/*Trigger para rechazar reserva en caso que no hayan despacios*/
+CREATE OR REPLACE TRIGGER trg_verificar_reserva
+BEFORE INSERT ON RESERVAS
+FOR EACH ROW
+DECLARE
+    v_cupos_disponibles INT;
+BEGIN
+    -- Obtener el número de espacios disponibles en la clase
+    SELECT (CLASES.ESPACIOS - NVL(COUNT(*), 0))
+    INTO v_cupos_disponibles
+    FROM RESERVAS
+    JOIN CLASES ON RESERVAS.ID_CLASE = CLASES.ID_CLASE
+    WHERE RESERVAS.ID_CLASE = :new.ID_CLASE
+    GROUP BY CLASES.ESPACIOS;
+
+    -- Verificar si hay espacios disponibles
+    IF v_cupos_disponibles <= 0 THEN
+        --Cuando no hay espacios disponibles
+        RAISE_APPLICATION_ERROR(-20001, 'No hay espacios disponibles en esta clase. La reserva ha sido rechazada.');
+    END IF;
+END;
+
+/* Trigger para renovacion automatica de membresia  */
+CREATE OR REPLACE TRIGGER trg_renovar_membresia
+BEFORE INSERT ON MEMBRESIAS
+FOR EACH ROW
+DECLARE
+    v_fecha_actual DATE;
+BEGIN
+    -- Obtener la fecha actual
+    SELECT SYSDATE INTO v_fecha_actual FROM DUAL;
+
+    -- Verificar si la fecha de vencimiento ha llegado
+    IF :new.FECHA_EXPIRACION <= v_fecha_actual THEN
+        -- Calcular la nueva fecha de inicio y de vencimiento para la renovación
+        :new.FECHA_INICIO := v_fecha_actual;
+        :new.FECHA_EXPIRACION := ADD_MONTHS(v_fecha_actual, 1); -- Por ejemplo, renovación por un mes
+
+        -- Opcional: Mostrar un mensaje de éxito en la consola de salida
+        DBMS_OUTPUT.PUT_LINE('Membresía renovada automáticamente.');
+    END IF;
+END;
