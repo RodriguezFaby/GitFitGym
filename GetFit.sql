@@ -1040,7 +1040,7 @@ DECLARE
     CURSOR c_membresias_vencidas IS
         SELECT *
         FROM MEMBRESIAS
-        WHERE FECHA_EXPIRACION < SYSDATE; -- Ajusta la condici�n seg�n la estructura real de tu tabla
+        WHERE FECHA_EXPIRACION < SYSDATE; -- Ajusta la condición según la estructura real de tu tabla
 
     rec_membresia c_membresias_vencidas%ROWTYPE;
 BEGIN
@@ -1049,8 +1049,8 @@ BEGIN
         FETCH c_membresias_vencidas INTO rec_membresia;
         EXIT WHEN c_membresias_vencidas%NOTFOUND;
 
-        -- Realiza las operaciones que necesites con cada membres�a vencida
-        DBMS_OUTPUT.PUT_LINE('Membres�a Vencida - ID_MEMBRESIA: ' || rec_membresia.ID_MEMBRESIA || ', ID_CLIENTE: ' || rec_membresia.ID_CLIENTE || ', FECHA_EXPIRACION: ' || rec_membresia.FECHA_EXPIRACION);
+        -- Realiza las operaciones que necesites con cada membresía vencida
+        DBMS_OUTPUT.PUT_LINE('Membresía Vencida - ID_MEMBRESIA: ' || rec_membresia.ID_MEMBRESIA || ', ID_CLIENTE: ' || rec_membresia.ID_CLIENTE || ', FECHA_EXPIRACION: ' || rec_membresia.FECHA_EXPIRACION);
     END LOOP;
     CLOSE c_membresias_vencidas;
 END;
@@ -1485,3 +1485,88 @@ END ReportePackage;
 
 
 --PAQUETES FIN--
+
+
+--Paquete Membresias--
+CREATE OR REPLACE PACKAGE Membresia_Package AS
+
+  /* Procedimiento para insertar una membresía */
+  PROCEDURE INSERT_MEMBRESIA(
+    m_ID_MEMBRESIA IN MEMBRESIAS.ID_MEMBRESIA%TYPE,
+    m_TIPO IN MEMBRESIAS.TIPO%TYPE,
+    m_ESTADO IN MEMBRESIAS.ESTADO%TYPE,
+    m_FECHA_INICIO IN MEMBRESIAS.FECHA_INICIO%TYPE,
+    m_FECHA_EXPIRACION IN MEMBRESIAS.FECHA_EXPIRACION%TYPE,
+    m_ID_CLIENTE IN MEMBRESIAS.ID_CLIENTE%TYPE
+  );
+
+  /* Procedimiento para actualizar el estado de una membresía por ID de cliente */
+  PROCEDURE UPDATE_MEMBRESIAS(
+    m_ID_CLIENTE IN MEMBRESIAS.ID_CLIENTE%TYPE,
+    m_ESTADO IN MEMBRESIAS.ESTADO%TYPE
+  );
+
+  /* Procedimiento para eliminar una membresía por ID de membresía */
+  PROCEDURE DELETE_MEMBRESIA(
+    m_ID_MEMBRESIA IN MEMBRESIAS.ID_MEMBRESIA%TYPE
+  );
+
+END Membresia_Package;
+/
+
+CREATE OR REPLACE PACKAGE BODY Membresia_Package AS
+
+  /* Implementación del procedimiento para insertar una membresía */
+  PROCEDURE INSERT_MEMBRESIA(
+    m_ID_MEMBRESIA IN MEMBRESIAS.ID_MEMBRESIA%TYPE,
+    m_TIPO IN MEMBRESIAS.TIPO%TYPE,
+    m_ESTADO IN MEMBRESIAS.ESTADO%TYPE,
+    m_FECHA_INICIO IN MEMBRESIAS.FECHA_INICIO%TYPE,
+    m_FECHA_EXPIRACION IN MEMBRESIAS.FECHA_EXPIRACION%TYPE,
+    m_ID_CLIENTE IN MEMBRESIAS.ID_CLIENTE%TYPE
+  )
+  IS
+  BEGIN
+    INSERT INTO MEMBRESIAS("ID_MEMBRESIA", "TIPO", "ESTADO", "FECHA_INICIO", "FECHA_EXPIRACION", "ID_CLIENTE")
+    VALUES (m_ID_MEMBRESIA, m_TIPO, m_ESTADO, m_FECHA_INICIO, m_FECHA_EXPIRACION, m_ID_CLIENTE);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro de ' || m_ID_MEMBRESIA || ' ha sido insertado');
+  END;
+
+  /* Implementación del procedimiento para actualizar el estado de una membresía por ID de cliente */
+  PROCEDURE UPDATE_MEMBRESIAS(
+    m_ID_CLIENTE IN MEMBRESIAS.ID_CLIENTE%TYPE,
+    m_ESTADO IN MEMBRESIAS.ESTADO%TYPE
+  )
+  AS
+  BEGIN
+    UPDATE MEMBRESIAS
+    SET ESTADO = m_ESTADO
+    WHERE ID_CLIENTE = m_ID_CLIENTE;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El estado de la membresía del cliente con ID: ' || m_ID_CLIENTE || ' ha sido modificado');
+  END;
+
+  /* Implementación del procedimiento para eliminar una membresía por ID de membresía */
+  PROCEDURE DELETE_MEMBRESIA(
+    m_ID_MEMBRESIA IN MEMBRESIAS.ID_MEMBRESIA%TYPE
+  )
+  AS
+  BEGIN
+    DELETE FROM MEMBRESIAS
+    WHERE ID_MEMBRESIA = m_ID_MEMBRESIA;
+    DBMS_OUTPUT.PUT_LINE('El registro de la membresía con ID: ' || m_ID_MEMBRESIA || ' ha sido eliminado');
+  END;
+
+END Membresia_Package;
+/
+
+-- Ejemplo de ejecución del procedimiento INSERT_MEMBRESIA
+EXEC Membresia_Package.INSERT_MEMBRESIA(5, 'Premium', 'Activo', TO_DATE('10/11/2023', 'DD/MM/YYYY'), TO_DATE('10/12/2023', 'DD/MM/YYYY'), 5);
+
+-- Ejemplo de ejecución del procedimiento UPDATE_MEMBRESIAS
+EXEC Membresia_Package.UPDATE_MEMBRESIAS(3, 'Inactivo');
+
+-- Ejemplo de ejecución del procedimiento DELETE_MEMBRESIA
+EXEC Membresia_Package.DELETE_MEMBRESIA(4);
+
