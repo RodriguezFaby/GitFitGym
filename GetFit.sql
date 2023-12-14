@@ -962,6 +962,7 @@ FROM CLIENTE;
 
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Cliente;
+
 -- Crear una vista que incluya la informacion de la tabla MEMBRESIAS
 CREATE VIEW Vista_Membresias AS
 SELECT
@@ -1062,35 +1063,29 @@ JOIN MEMBRESIAS M ON C.ID_CLIENTE = M.ID_CLIENTE;
 
 SELECT * FROM VISTA_CLIENTES_MEMBRESIAS;
 
---RESTO DEL CRUD DE EMPLEADO
--- Leer todos los empleados
-SELECT * FROM EMPLEADO;
 
--- Leer un empleado especifico por ID
-SELECT * FROM EMPLEADO WHERE ID_EMPLEADO = 1;
-
--- Actualizar informacion de un empleado
+-- Actualizar informacion de un empleado************
 UPDATE EMPLEADO
 SET SALARIO = 55000, ESTADO = 'Inactivo'
 WHERE ID_EMPLEADO = 1;
 
--- Eliminar un empleado por ID
+-- Eliminar un empleado por ID**********************
 DELETE FROM EMPLEADO WHERE ID_EMPLEADO = 1;
 
---FUNCION DE FACTURA DE SU FECHA DE INICIO HASTA HOY
+--FUNCION DE FACTURA DE SU FECHA DE INICIO HASTA HOY********************
 SELECT MONTHS_BETWEEN(FECHA_INICIO, SYSDATE) FROM EMPLEADO;
 
---Funcion del numero total de reservas por el estado que se tiene
+--Funcion del numero total de reservas por el estado que se tiene*******
 SELECT ESTADO, COUNT(*) AS CANTIDAD
 FROM RESERVAS
 GROUP BY ESTADO;
 
---Funcion del promedio de montos de factura por cada cliente
+--Funcion del promedio de montos de factura por cada cliente*************
 SELECT ID_CLIENTE, AVG(MONTO) AS PROMEDIO_MONTO
 FROM FACTURA
 GROUP BY ID_CLIENTE;
 
---Funcion para ver todos los clientes--
+--Funcion para ver todos los clientes--*************************
 CREATE OR REPLACE FUNCTION GET_ALL_CLIENTES
 RETURN SYS_REFCURSOR
 IS
@@ -1101,19 +1096,7 @@ BEGIN
     RETURN cliente_cursor;
 END;
 
---Funcion para obtener todos los empleados--
-CREATE OR REPLACE FUNCTION GET_ALL_EMPLEADOS
-RETURN SYS_REFCURSOR
-IS
-    empleado_cursor SYS_REFCURSOR;
-BEGIN
-    OPEN empleado_cursor FOR
-        SELECT * FROM EMPLEADO;
-    RETURN empleado_cursor;
-END;
-
-
---Funcion para obtener todas las reservas--
+--Funcion para obtener todas las reservas--********************
 CREATE OR REPLACE FUNCTION GET_ALL_RESERVAS
 RETURN SYS_REFCURSOR
 IS
@@ -1125,7 +1108,7 @@ BEGIN
 END;
 
 
---Funcion para obtener todas las facturas--
+--Funcion para obtener todas las facturas--******************************
 CREATE OR REPLACE FUNCTION GET_ALL_FACTURAS
 RETURN SYS_REFCURSOR
 IS
@@ -1137,31 +1120,7 @@ BEGIN
 END;
 
 	
---Actualizar horarios--
-/* CREATE OR REPLACE PROCEDURE UPDATE_HORARIO(
-    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
-    h_CLASE IN HORARIO.CLASE%TYPE)
-AS
-BEGIN
-    UPDATE HORARIO
-    SET CLASE = h_CLASE
-    WHERE ID_HORARIO = h_ID_HORARIO;
-    COMMIT;
-    DBMS_OUTPUT.PUT_LINE('La clase con el horario ID de: ' || h_ID_HORARIO || ' ha sido modificada.');
-END;*/
-
---Eliminar horarios--
-/*CREATE OR REPLACE PROCEDURE DELETE_HORARIO(
-    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE)
-AS
-BEGIN
-    DELETE FROM HORARIO
-    WHERE ID_HORARIO = h_ID_HORARIO;
-    COMMIT;
-    DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido eliminado.');
-END;*/
-
---Consulta horario--
+--Consulta horario--***************************
 CREATE OR REPLACE FUNCTION GET_ALL_HORARIOS
 RETURN SYS_REFCURSOR
 IS
@@ -1173,31 +1132,7 @@ BEGIN
 END;
 
 
---Actualizar cliente de factura--
-/*CREATE OR REPLACE PROCEDURE UPDATE_FACTURA(
-    f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
-    f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE)
-AS
-BEGIN
-    UPDATE FACTURA
-    SET ID_CLIENTE = f_ID_CLIENTE
-    WHERE ID_FACTURA = f_ID_FACTURA;
-    COMMIT;
-    DBMS_OUTPUT.PUT_LINE('El cliente de la factura con ID: ' || f_ID_FACTURA || ' ha sido modificado.');
-END;*/
-
---Eliminar factura--
-/*CREATE OR REPLACE PROCEDURE DELETE_FACTURA(
-    f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE)
-AS
-BEGIN
-    DELETE FROM FACTURA
-    WHERE ID_FACTURA = f_ID_FACTURA;
-    COMMIT;
-    DBMS_OUTPUT.PUT_LINE('El registro de factura con ID: ' || f_ID_FACTURA || ' ha sido eliminado.');
-END;*/
-
---Consulta de facturas--
+--Consulta de facturas--********************
 CREATE OR REPLACE FUNCTION GET_ALL_FACTURAS
 RETURN SYS_REFCURSOR
 IS
@@ -1230,7 +1165,7 @@ CREATE OR REPLACE PACKAGE ClientePackage AS
 
     FUNCTION ObtenerClientes RETURN SYS_REFCURSOR;
 END ClientePackage;
-/
+
 
 CREATE OR REPLACE PACKAGE MembresiaPackage AS
     PROCEDURE InsertarMembresia(
@@ -1253,7 +1188,7 @@ CREATE OR REPLACE PACKAGE MembresiaPackage AS
 
     FUNCTION ObtenerMembresias RETURN SYS_REFCURSOR;
 END MembresiaPackage;
-/
+
 
 CREATE OR REPLACE PACKAGE EmpleadoPackage AS
     PROCEDURE InsertarEmpleado(
@@ -1279,7 +1214,7 @@ CREATE OR REPLACE PACKAGE EmpleadoPackage AS
 
     FUNCTION ObtenerEmpleados RETURN SYS_REFCURSOR;
 END EmpleadoPackage;
-/
+
 
 CREATE OR REPLACE PACKAGE ClasePackage AS
     PROCEDURE InsertarClase(
@@ -1302,7 +1237,7 @@ CREATE OR REPLACE PACKAGE ClasePackage AS
 
     FUNCTION ObtenerClases RETURN SYS_REFCURSOR;
 END ClasePackage;
-/
+
 
 CREATE OR REPLACE PACKAGE ReservaPackage AS
     PROCEDURE InsertarReserva(
@@ -1323,7 +1258,7 @@ CREATE OR REPLACE PACKAGE ReservaPackage AS
 
     FUNCTION ObtenerReservas RETURN SYS_REFCURSOR;
 END ReservaPackage;
-/
+
 
 CREATE OR REPLACE PACKAGE HorarioPackage AS
     PROCEDURE InsertarHorario(
@@ -1344,7 +1279,7 @@ CREATE OR REPLACE PACKAGE HorarioPackage AS
 
     FUNCTION ObtenerHorarios RETURN SYS_REFCURSOR;
 END HorarioPackage;
-/
+
 
 CREATE OR REPLACE PACKAGE FacturaPackage AS
     PROCEDURE InsertarFactura(
@@ -1366,7 +1301,7 @@ CREATE OR REPLACE PACKAGE FacturaPackage AS
 
     FUNCTION ObtenerFacturas RETURN SYS_REFCURSOR;
 END FacturaPackage;
-/
+
 
 CREATE OR REPLACE PACKAGE EquipoPackage AS
     PROCEDURE InsertarEquipo(
@@ -1386,7 +1321,7 @@ CREATE OR REPLACE PACKAGE EquipoPackage AS
 
     FUNCTION ObtenerEquipos RETURN SYS_REFCURSOR;
 END EquipoPackage;
-/
+
 
 CREATE OR REPLACE PACKAGE EvaluacionPackage AS
     PROCEDURE InsertarEvaluacion(
@@ -1408,7 +1343,7 @@ CREATE OR REPLACE PACKAGE EvaluacionPackage AS
 
     FUNCTION ObtenerEvaluaciones RETURN SYS_REFCURSOR;
 END EvaluacionPackage;
-/
+
 
 CREATE OR REPLACE PACKAGE ReportePackage AS
     FUNCTION GenerarReporteClientes RETURN SYS_REFCURSOR;
@@ -1420,7 +1355,7 @@ CREATE OR REPLACE PACKAGE ReportePackage AS
         p_FECHA_FIN IN DATE
     ) RETURN SYS_REFCURSOR;
 END ReportePackage;
-/
+
 
 
 --PAQUETES FIN--
