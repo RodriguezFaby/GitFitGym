@@ -237,6 +237,7 @@ insert into FACTURA values(3, 3, 75000, TO_DATE('2023-11-10', 'YYYY-MM-DD'), 'Pa
 /*-------------------------PROCEDIMIENTOS ALMACENADOS-------------------*/
 
 /*---------SP para insertar clientes-------------------*/
+--1
 CREATE OR REPLACE PROCEDURE INSERT_CLIENTE(
 	   c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE,
 	   c_NOMBRE IN CLIENTE.NOMBRE%TYPE,
@@ -256,7 +257,7 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC INSERT_CLIENTE(4,'Xinia','Lopez','09/10/2010',2);
 
----------------Trigger se dispara cuando un cliente es agregado-----------------------
+---------------Trigger se dispara cuando un cliente es agregado--------------------- 1t--
 CREATE OR REPLACE TRIGGER TGR_INSERT_CLIENTE
 BEFORE INSERT ON CLIENTE
 FOR EACH ROW
@@ -283,6 +284,7 @@ EXEC INSERT_CLIENTE(5,'Lupe','Rojas','09/10/2018',1);
 EXEC INSERT_CLIENTE(6,'Gabriel','Valverde','09/10/2020',1);
 
 /*---------SP para modificar la mensualidad de los clientes-------------------*/
+--2
 CREATE OR REPLACE PROCEDURE UPDATE_CLIENTE(
 	   c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE,
 	   c_MENSUALIDAD IN CLIENTE.MENSUALIDAD%TYPE)
@@ -302,6 +304,7 @@ EXEC UPDATE_CLIENTE(6,2);
 
 
 /*---------SP para eliminar clientes-------------------*/
+--3
 CREATE OR REPLACE PROCEDURE DELETE_CLIENTE(
 	   c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE)
 AS
@@ -317,6 +320,7 @@ END;
 EXEC DELETE_CLIENTE(6);
 
 /*---------SP para insertar membresias-------------------*/
+--4
 CREATE OR REPLACE PROCEDURE INSERT_MEMBRESIA(
 	   m_ID_MEMBRESIA IN MEMBRESIAS.ID_MEMBRESIA%TYPE,
 	   m_TIPO IN MEMBRESIAS.TIPO%TYPE,
@@ -338,6 +342,7 @@ END;
 EXEC INSERT_MEMBRESIA(4,'Standard','Activo','10/11/2023','10/12/2023',4);
 
 /*---------SP para modificar el estado de membresia segun el ID del cliente----*/
+--5
 CREATE OR REPLACE PROCEDURE UPDATE_MEMBRESIAS(
 	   m_ID_CLIENTE IN MEMBRESIAS.ID_CLIENTE%TYPE,
 	   m_ESTADO IN MEMBRESIAS.ESTADO%TYPE)
@@ -356,6 +361,7 @@ END;
 EXEC UPDATE_MEMBRESIAS(3,'Inactio');
 
 /*---------SP para eliminar membresias-------------------*/
+--6
 CREATE OR REPLACE PROCEDURE DELETE_MEMBRESIA(
 	   m_ID_MEMBRESIA IN MEMBRESIAS.ID_MEMBRESIA %TYPE)
 AS
@@ -370,6 +376,7 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC DELETE_MEMBRESIA(4);
 --------------------------------------------------------------------------
+--7
 CREATE OR REPLACE PROCEDURE INSERT_RESERVA(
     r_ID_RESERVA IN INT,
     r_ESTADO_RESERVA IN VARCHAR2,
@@ -413,6 +420,7 @@ END INSERT_RESERVA;
 EXEC INSERT_RESERVA(4,'Activa',3,3);
 
 /*---------SP para modificar el estado de la reserva de los clientes-------------------*/
+--8
 CREATE OR REPLACE PROCEDURE UPDATE_RESERVA(
 	   r_ID_RESERVA IN RESERVAS.ID_RESERVA%TYPE,
 	   r_ESTADO IN RESERVAS.ESTADO%TYPE)
@@ -431,6 +439,7 @@ END;
 EXEC UPDATE_RESERVA(1,'Pendiente');
 
 /*---------SP para eliminar reservas-------------------*/
+--9
 CREATE OR REPLACE PROCEDURE DELETE_RESERVAS(
 	   r_ID_RESERVA IN RESERVAS.ID_RESERVA %TYPE)
 AS
@@ -445,7 +454,7 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC DELETE_RESERVAS(4);
 
-/*---------------TRIGGER se dispara cuando una reserva es cancelada---------------*/
+/*---------------TRIGGER se dispara cuando una reserva es cancelada------------2t---*/
 CREATE OR REPLACE TRIGGER TGR_DELETE_RESERVA
 BEFORE DELETE ON RESERVAS
 FOR EACH ROW
@@ -469,6 +478,7 @@ END;
 EXEC DELETE_RESERVAS(3);
 
 --------------CRUD de Horarios-------------------------------------
+--10
 CREATE OR REPLACE PROCEDURE INSERT_HORARIO(
     h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
     h_DIA IN HORARIO.DIA%TYPE,
@@ -488,6 +498,7 @@ EXEC INSERT_HORARIO(4,'Miercoles', TO_TIMESTAMP('18:00', 'HH24:MI:SS'), TO_TIMES
 
 
 /*---------SP para modificar el dia del horario-------------------*/
+--11
 CREATE OR REPLACE PROCEDURE UPDATE_HORARIO(
 	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
 	   h_DIA IN HORARIO.DIA%TYPE)
@@ -506,6 +517,7 @@ END;
 EXEC UPDATE_HORARIO(3,'Lunes');
 
 /*---------SP para modificar la hora de inicio de un horario-------------------*/
+--12
 CREATE OR REPLACE PROCEDURE UPDATE_HORARIO_INICIO(
 	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
 	   h_HORA_INICIO IN HORARIO.HORA_INICIO%TYPE)
@@ -524,6 +536,7 @@ END;
 EXEC UPDATE_HORARIO_INICIO(3,TO_TIMESTAMP('14:00', 'HH24:MI:SS'));
 
 /*---------SP para modificar la hora de finalizacion de un horario-------------------*/
+--13
 CREATE OR REPLACE PROCEDURE UPDATE_HORARIO_FIN(
 	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
 	   h_HORA_FIN IN HORARIO.HORA_FIN%TYPE)
@@ -542,6 +555,7 @@ END;
 EXEC UPDATE_HORARIO_FIN(3,TO_TIMESTAMP('18:00', 'HH24:MI:SS'));
 
 /*---------SP para eliminar horarios-------------------*/
+--14
 CREATE OR REPLACE PROCEDURE DELETE_HORARIO(
 	   h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE)
 AS
@@ -558,6 +572,7 @@ EXEC DELETE_HORARIO(4);
 
 
 ----------------------CRUD para facturas------------------------------
+--15
 CREATE OR REPLACE PROCEDURE INSERT_FACTURA(
     f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
     f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE,
@@ -575,7 +590,7 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC INSERT_FACTURA(4, 2, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membresia');
 
----------------Trigger se dispara cuando una reserva es agregada-----------------------
+---------------Trigger se dispara cuando una reserva es agregada---------------------3t--
 CREATE OR REPLACE TRIGGER TGR_INSERT_FACTURA
 BEFORE INSERT ON FACTURA
 FOR EACH ROW
@@ -601,6 +616,7 @@ END;
 EXEC INSERT_FACTURA(5, 1, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membresia');
 
 /*---------SP para modificar el cliente en la tabla FACTURA-------------------*/
+--16
 CREATE OR REPLACE PROCEDURE UPDATE_FACTURA(
 	   f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
 	   f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE)
@@ -619,6 +635,7 @@ END;
 EXEC UPDATE_FACTURA(1,3);
 
 /*---------SP para eliminar factura-------------------*/
+--17
 CREATE OR REPLACE PROCEDURE DELETE_FACTURA(
 	   f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE)
 AS
@@ -635,6 +652,7 @@ EXEC DELETE_FACTURA(5);
 
 /*--------------------CRUD tabla CLASE---------------------------------------*/
 /*---------SP para insertar clases-------------------*/
+--18
 CREATE OR REPLACE PROCEDURE INSERT_CLASE(
 	   c_ID_CLASE IN CLASES.ID_CLASE%TYPE,
        c_DESCRIPCION IN CLASES.DESCRIPCION%TYPE,
@@ -656,6 +674,7 @@ END;
 EXEC INSERT_CLASE(4,'GAP','Activa',10,1,1);
 
 /*---------SP para modificar el Empleado encargado de una clase segun el ID de la clase----*/
+--19
 CREATE OR REPLACE PROCEDURE UPDATE_CLASE_EMPLEADO(
 	   c_ID_CLASE  IN CLASES.ID_CLASE %TYPE,
 	   c_ID_EMPLEADO IN CLASES.ID_EMPLEADO%TYPE)
@@ -674,6 +693,7 @@ END;
 EXEC UPDATE_CLASE_EMPLEADO(4,3);
 
 /*---------SP para eliminar clases-------------------*/
+--20
 CREATE OR REPLACE PROCEDURE DELETE_CLASE(
 	   c_ID_CLASE IN CLASES.ID_CLASE%TYPE)
 AS
@@ -688,7 +708,7 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC DELETE_CLASE(4)
 
----------------Trigger se dispara cuando una clase es eliminada-----------------------
+---------------Trigger se dispara cuando una clase es eliminada---------------------4t--
 CREATE OR REPLACE TRIGGER TGR_AUD_CLASES
 BEFORE DELETE ON CLASES
 FOR EACH ROW
@@ -716,6 +736,7 @@ END;
 EXEC DELETE_CLASE(3)
 
 /*---------SP para modificar el nombre de la clase segun el ID ----*/
+--21
 CREATE OR REPLACE PROCEDURE UPDATE_CLASE_DESCRIPCION(
 	   c_ID_CLASE  IN CLASES.ID_CLASE %TYPE,
 	   c_DESCRIPCION IN CLASES.DESCRIPCION%TYPE)
@@ -735,6 +756,7 @@ EXEC UPDATE_CLASE_DESCRIPCION(2,'Kickbox');
 
 /*--------------------CRUD tabla Empleado---------------------------------------*/
 /*---------SP para insertar Empleados-------------------*/
+--22
 CREATE OR REPLACE PROCEDURE INSERT_EMPLEADO(
 	   e_ID_EMPLEADO IN EMPLEADO.ID_EMPLEADO%TYPE,
 	   e_NOMBRE IN EMPLEADO.NOMBRE%TYPE,
@@ -758,7 +780,7 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC INSERT_EMPLEADO(4,'Lili','Valverde','10/11/2010','Activo',50000,'lil@.com',5462258, 'Oficinista');
 
-/*---------------------trigger que se dispara cuando se inserta un nuevo empleado-------------*/
+/*---------------------trigger que se dispara cuando se inserta un nuevo empleado-----------5t--*/
 CREATE OR REPLACE TRIGGER TGR_INSERT_EMPLEADO
 BEFORE INSERT ON EMPLEADO
 FOR EACH ROW
@@ -792,6 +814,7 @@ END;
 EXEC INSERT_EMPLEADO(5,'Alex','Vega','10/11/2009','Inactivo',50000,'lil@.com',5462258, 'Oficinista');
 
 /*---------SP para modificar el salario de un empleado----*/
+--23
 CREATE OR REPLACE PROCEDURE UPDATE_EMPLEADO_SALARIO 
 AS
 BEGIN
@@ -819,6 +842,7 @@ EXEC UPDATE_EMPLEADO_SALARIO;
 
 
 --Eliminar empleado inactivo con SP
+--24
 CREATE OR REPLACE PROCEDURE EliminarEmpleadoInactivo AS
 BEGIN
     -- Eliminar empleados inactivos
@@ -836,98 +860,183 @@ EXEC EliminarEmpleadoInactivo;
 ------------------------------------------------------------------------------
 
 -------------------------------
--- Cursor para la tabla FACTURA donde el monto es de 50000
-   CURSOR c_factura IS
-        SELECT 1 AS ID_FACTURA, 1 AS ID_CLIENTE, 50000 AS MONTO, TO_DATE('2023-10-30', 'YYYY-MM-DD') AS FECHA,
-        'Pago de membresias' AS DESCRIPCION FROM DUAL;
-
-   -- Cursor para la tabla RESERVAS confirmada
-    CURSOR c_reservas IS
-        SELECT 1 AS ID_RESERVA, TO_DATE('2023-10-30', 'YYYY-MM-DD') AS FECHA, TO_DATE('14:00', 'HH24:MI') AS HORA,
-        'Confirmada' AS ESTADO, 2 AS ID_CLIENTE FROM DUAL;
+-- Cursor para la tabla Clientes
+DECLARE
+    CURSOR c_cliente IS
+        SELECT * FROM CLIENTE;
+BEGIN
+    FOR rec IN c_cliente LOOP
+        DBMS_OUTPUT.PUT_LINE('ID_CLIENTE: ' || rec.ID_CLIENTE || ', NOMBRE: ' || rec.NOMBRE || ', APELLIDO: ' || rec.APELLIDO);
+    END LOOP;
+END;
+exec 
+   -- Cursor para la tabla AUD_CLIENTE
+    DECLARE
+    CURSOR c_aud_cliente IS
+        SELECT * FROM AUD_CLIENTE;
+BEGIN
+    FOR rec IN c_aud_cliente LOOP
+        DBMS_OUTPUT.PUT_LINE('CONSECUTIVO: ' || rec.CONSECUTIVO || ', ID_CLIENTE: ' || rec.ID_CLIENTE || ', NOMBRE: ' || rec.NOMBRE);
+    END LOOP;
+END;
     
-    -- Cursor para la tabla HORARIO
-    CURSOR c_horario IS
-        SELECT 1 AS ID_HORARIO, 'Lunes' AS DIA, TO_DATE('08:30', 'HH24:MI') AS HORA_INICIO, TO_DATE('10:00', 'HH24:MI') AS HORA_FIN,
-        'Clase de Yoga' AS CLASE FROM DUAL;
+    -- Cursor para la tabla MEMBRESIAS
+DECLARE
+    CURSOR c_membresias IS
+        SELECT * FROM MEMBRESIAS;
+BEGIN
+    FOR rec IN c_membresias LOOP
+        DBMS_OUTPUT.PUT_LINE('ID_MEMBRESIA: ' || rec.ID_MEMBRESIA || ', TIPO: ' || rec.TIPO || ', ESTADO: ' || rec.ESTADO);
+    END LOOP;
+END;
 
    -- Cursor para la tabla EMPLEADO
-   CURSOR c_empleado IS
-	SELECT * FROM EMPLEADO;
+DECLARE
+    CURSOR c_empleado IS
+        SELECT * FROM EMPLEADO;
+BEGIN
+    FOR rec IN c_empleado LOOP
+        DBMS_OUTPUT.PUT_LINE('ID_EMPLEADO: ' || rec.ID_EMPLEADO || ', NOMBRE: ' || rec.NOMBRE || ', APELLIDO: ' || rec.APELLIDO);
+    END LOOP;
+END;
 
-   -- Cursor membresias venciadas--
-	CURSOR c_clientes_membresia_vencida IS
-	   SELECT *
-	   FROM CLIENTE c
-	   JOIN MEMBRESIAS m ON c.ID_CLIENTE = m.ID_CLIENTE
-	   WHERE m.FECHA_EXPIRACION < SYSDATE;
+   -- Cursor Auditar empleados--
+DECLARE
+    CURSOR c_aud_empleado IS
+        SELECT * FROM AUD_EMPLEADO;
+BEGIN
+    FOR rec IN c_aud_empleado LOOP
+        DBMS_OUTPUT.PUT_LINE('CONSECUTIVO: ' || rec.CONSECUTIVO || ', ID_EMPLEADO: ' || rec.ID_EMPLEADO || ', NOMBRE: ' || rec.NOMBRE);
+    END LOOP;
+END;
 	
-   -- Clases por instructor--
-	CURSOR c_clases_por_instructor IS
-	   SELECT ID_EMPLEADO, COUNT(*) AS CANTIDAD_CLASES
-	   FROM CLASES
-	   WHERE ESTADO = 'Activa'
-	   GROUP BY ID_EMPLEADO;
+   -- Cursor Clases --
+DECLARE
+    CURSOR c_clases IS
+        SELECT * FROM CLASES;
+BEGIN
+    FOR rec IN c_clases LOOP
+        DBMS_OUTPUT.PUT_LINE('ID_CLASE: ' || rec.ID_CLASE || ', DESCRIPCION: ' || rec.DESCRIPCION || ', ESTADO: ' || rec.ESTADO);
+    END LOOP;
+END;
 
-   --Cursor facturas pendientes--
-    	CURSOR c_reservas_pendientes IS
-	   SELECT *
-	   FROM RESERVAS
-	   WHERE ESTADO = 'Pendiente';
+   --Cursor auditar clases--
+DECLARE
+    CURSOR c_aud_clases IS
+        SELECT * FROM AUD_CLASES;
+BEGIN
+    FOR rec IN c_aud_clases LOOP
+        DBMS_OUTPUT.PUT_LINE('CONSECUTIVO: ' || rec.CONSECUTIVO || ', ID_CLASE: ' || rec.ID_CLASE || ', DESCRIPCION: ' || rec.DESCRIPCION);
+    END LOOP;
+END;
 
-   --Cursor empleados activos unicamente--
-	CURSOR c_empleados_activos IS
-	   SELECT *
-	   FROM EMPLEADO
-	   WHERE ESTADO = 'Activo';
+   --Cursor reservas--
+DECLARE
+    CURSOR c_reservas IS
+        SELECT * FROM RESERVAS;
+BEGIN
+    FOR rec IN c_reservas LOOP
+        DBMS_OUTPUT.PUT_LINE('ID_RESERVA: ' || rec.ID_RESERVA || ', ESTADO: ' || rec.ESTADO || ', ID_CLASE: ' || rec.ID_CLASE);
+    END LOOP;
+END;
 
-   --Cursor clases canceladas--
-	CURSOR c_clases_canceladas IS
-	   SELECT *
-	   FROM CLASES
-	   WHERE ESTADO = 'Cancelada';
+   --Cursor auditar reservas--
+DECLARE
+    CURSOR c_aud_reservas IS
+        SELECT * FROM AUD_RESERVAS;
+BEGIN
+    FOR rec IN c_aud_reservas LOOP
+        DBMS_OUTPUT.PUT_LINE('CONSECUTIVO: ' || rec.CONSECUTIVO || ', ID_RESERVA: ' || rec.ID_RESERVA || ', ESTADO: ' || rec.ESTADO);
+    END LOOP;
+END;
 
-   --Cursor membresias vencidas del Ãºltimo mes--
-	CURSOR c_membresias_vencidas_ultimo_mes IS
-	   SELECT *
-	   FROM MEMBRESIAS
-	   WHERE FECHA_EXPIRACION BETWEEN ADD_MONTHS(SYSDATE, -1) AND SYSDATE;
+   --Cursor horarios--
+DECLARE
+    CURSOR c_horario IS
+        SELECT * FROM HORARIO;
+BEGIN
+    FOR rec IN c_horario LOOP
+        DBMS_OUTPUT.PUT_LINE('ID_HORARIO: ' || rec.ID_HORARIO || ', DIA: ' || rec.DIA || ', HORA_INICIO: ' || rec.HORA_INICIO);
+    END LOOP;
+END;
 
-   --Cursor de clases con espacios disponibles--
-	CURSOR c_clases_con_espacios_disponibles IS
-	   SELECT *
-	   FROM CLASES
-	   WHERE ESPACIOS > 0;
+   --Cursor de facturas--
+DECLARE
+    CURSOR c_factura IS
+        SELECT * FROM FACTURA;
+BEGIN
+    FOR rec IN c_factura LOOP
+        DBMS_OUTPUT.PUT_LINE('ID_FACTURA: ' || rec.ID_FACTURA || ', ID_CLIENTE: ' || rec.ID_CLIENTE || ', MONTO: ' || rec.MONTO);
+    END LOOP;
+END;
 
-   --Cursor para ver facturas del ultimo mes--
-	CURSOR c_facturas_ultimo_mes IS
-	   SELECT *
-	   FROM FACTURA
-	   WHERE FECHA BETWEEN ADD_MONTHS(SYSDATE, -1) AND SYSDATE;
+   --Cursor para ver auditar facturas --
+DECLARE
+    CURSOR c_aud_factura IS
+        SELECT * FROM AUD_FACTURA;
+BEGIN
+    FOR rec IN c_aud_factura LOOP
+        DBMS_OUTPUT.PUT_LINE('ID_FACTURA: ' || rec.ID_FACTURA || ', ID_CLIENTE: ' || rec.ID_CLIENTE);
+    END LOOP;
+END;
 
-   --Cursor membresias activas--
-	CURSOR c_membresias_activas IS
-	    SELECT *
-	    FROM MEMBRESIAS
-	    WHERE ESTADO = 'Activo';
+--Cursor Facturas vencidas
+DECLARE
+    CURSOR c_facturas_vencidas IS
+        SELECT *
+        FROM FACTURA
+        WHERE FECHA < SYSDATE; 
 
-   --Cursor para ver clases activas--
-	CURSOR c_clases_activas IS
-	    SELECT *
-	    FROM CLASES
-	    WHERE ESTADO = 'Activa';
-   --Cursor para ver salarios con mayor ingreso--
-	CURSOR c_empleados_salario_alto IS
-	    SELECT *
-	    FROM EMPLEADO
-	    WHERE SALARIO > 50000;
+    rec_factura c_facturas_vencidas%ROWTYPE;
+BEGIN
+    OPEN c_facturas_vencidas;
+    LOOP
+        FETCH c_facturas_vencidas INTO rec_factura;
+        EXIT WHEN c_facturas_vencidas%NOTFOUND;
 
-   --Clientes con mensualidad alta--
-	CURSOR c_clientes_mensualidad_alta IS
-	    SELECT *
-	    FROM CLIENTE
-	    WHERE MENSUALIDAD > 1;
+        DBMS_OUTPUT.PUT_LINE('Factura Vencida - ID_FACTURA: ' || rec_factura.ID_FACTURA || ', ID_CLIENTE: ' || rec_factura.ID_CLIENTE || ', MONTO: ' || rec_factura.MONTO);
+    END LOOP;
+    CLOSE c_facturas_vencidas;
+END;
 
+--Cursor reservas pendientes
+DECLARE
+    CURSOR c_reservas_pendientes IS
+        SELECT *
+        FROM RESERVAS
+        WHERE ESTADO = 'Pendiente'; 
+
+    rec_reserva c_reservas_pendientes%ROWTYPE;
+BEGIN
+    OPEN c_reservas_pendientes;
+    LOOP
+        FETCH c_reservas_pendientes INTO rec_reserva;
+        EXIT WHEN c_reservas_pendientes%NOTFOUND;
+
+        DBMS_OUTPUT.PUT_LINE('Reserva Pendiente - ID_RESERVA: ' || rec_reserva.ID_RESERVA || ', ID_CLASE: ' || rec_reserva.ID_CLASE || ', ID_CLIENTE: ' || rec_reserva.ID_CLIENTE);
+    END LOOP;
+    CLOSE c_reservas_pendientes;
+END;
+
+--Cursor membresias vencidas
+DECLARE
+    CURSOR c_membresias_vencidas IS
+        SELECT *
+        FROM MEMBRESIAS
+        WHERE FECHA_EXPIRACION < SYSDATE; -- Ajusta la condición según la estructura real de tu tabla
+
+    rec_membresia c_membresias_vencidas%ROWTYPE;
+BEGIN
+    OPEN c_membresias_vencidas;
+    LOOP
+        FETCH c_membresias_vencidas INTO rec_membresia;
+        EXIT WHEN c_membresias_vencidas%NOTFOUND;
+
+        -- Realiza las operaciones que necesites con cada membresía vencida
+        DBMS_OUTPUT.PUT_LINE('Membresía Vencida - ID_MEMBRESIA: ' || rec_membresia.ID_MEMBRESIA || ', ID_CLIENTE: ' || rec_membresia.ID_CLIENTE || ', FECHA_EXPIRACION: ' || rec_membresia.FECHA_EXPIRACION);
+    END LOOP;
+    CLOSE c_membresias_vencidas;
+END;
 
         -- Insertar datos en la tabla RESERVAS**
 BEGIN
@@ -937,7 +1046,7 @@ BEGIN
         VALUES (reserva.ID_RESERVA, reserva.FECHA, reserva.HORA, reserva.ESTADO, reserva.ID_CLIENTE);
     END LOOP;
 
-    COMMIT; -- Confirmar la transaccion
+    COMMIT; 
 END;
 
 
@@ -950,7 +1059,7 @@ BEGIN
     END LOOP;
 END;
 
--- Crear una vista que incluya la informacion de la tabla CLIENTE
+-- Crear una vista que incluya la informacion de la tabla CLIENTE 1
 CREATE VIEW Vista_Cliente AS
 SELECT
     ID_CLIENTE,
@@ -963,7 +1072,7 @@ FROM CLIENTE;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Cliente;
 
--- Crear una vista que incluya la informacion de la tabla MEMBRESIAS
+-- Crear una vista que incluya la informacion de la tabla MEMBRESIAS 2
 CREATE VIEW Vista_Membresias AS
 SELECT
     ID_MEMBRESIA,
@@ -977,7 +1086,7 @@ FROM MEMBRESIAS;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Membresias;
 
--- Crear una vista que incluya la informacion de la tabla EMPLEADO
+-- Crear una vista que incluya la informacion de la tabla EMPLEADO 3
 CREATE VIEW Vista_Empleado AS
 SELECT
     ID_EMPLEADO,
@@ -995,7 +1104,7 @@ FROM EMPLEADO;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Empleado;
 
--- Crear una vista que incluya la informacion de la tabla RESERVAS
+-- Crear una vista que incluya la informacion de la tabla RESERVAS 4
 CREATE VIEW Vista_Reservas AS
 SELECT
     ID_RESERVA,
@@ -1007,7 +1116,7 @@ FROM RESERVAS;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Reservas;
 
--- Crear una vista que incluya la informacion de la tabla FACTURA
+-- Crear una vista que incluya la informacion de la tabla FACTURA 5
 CREATE VIEW Vista_Factura AS
 SELECT
     ID_FACTURA,
@@ -1020,7 +1129,7 @@ FROM FACTURA;
 -- Consulta utilizando la vista
 SELECT * FROM Vista_Factura;
 
---Vista Reservas Actuales
+--Vista Reservas Actuales 6
 CREATE OR REPLACE VIEW VISTA_RESERVAS_ACTUALES AS
 SELECT R.ID_RESERVA, R.ESTADO, C.NOMBRE AS NOMBRE_CLIENTE, CL.DESCRIPCION AS DESCRIPCION_CLASE
 FROM RESERVAS R
@@ -1030,7 +1139,7 @@ WHERE R.ESTADO = 'Activa';
 
 SELECT * FROM VISTA_RESERVAS_ACTUALES;
 
---Vista Membresias Activas
+--Vista Membresias Activas 7
 CREATE OR REPLACE VIEW VISTA_MEMBRESIAS_ACTIVAS AS
 SELECT M.ID_MEMBRESIA, M.TIPO, M.ESTADO, C.NOMBRE AS NOMBRE_CLIENTE
 FROM MEMBRESIAS M
@@ -1039,7 +1148,7 @@ WHERE M.ESTADO = 'Activo';
 
 SELECT * FROM VISTA_MEMBRESIAS_ACTIVAS;
 
---Vista para Instructor y su clase
+--Vista para Instructor y su clase 8
 CREATE OR REPLACE VIEW VISTA_INSTRUCTORES_CLASES AS
 SELECT E.NOMBRE AS NOMBRE_INSTRUCTOR, E.PUESTO, CL.DESCRIPCION AS DESCRIPCION_CLASE
 FROM EMPLEADO E
@@ -1047,7 +1156,7 @@ JOIN CLASES CL ON E.ID_EMPLEADO = CL.ID_EMPLEADO;
 
 SELECT * FROM VISTA_INSTRUCTORES_CLASES;
 
---Vista para facturas emitidas
+--Vista para facturas emitidas 9
 CREATE OR REPLACE VIEW VISTA_FACTURAS_EMITIDAS AS
 SELECT F.ID_FACTURA, F.MONTO, F.FECHA, C.NOMBRE AS NOMBRE_CLIENTE
 FROM FACTURA F
@@ -1055,7 +1164,7 @@ JOIN CLIENTE C ON F.ID_CLIENTE = C.ID_CLIENTE;
 
 SELECT * FROM VISTA_FACTURAS_EMITIDAS;
 
---Vista de Clientes y sus Membresias
+--Vista de Clientes y sus Membresias 10
 CREATE OR REPLACE VIEW VISTA_CLIENTES_MEMBRESIAS AS
 SELECT C.NOMBRE AS NOMBRE_CLIENTE, M.TIPO, M.FECHA_INICIO, M.FECHA_EXPIRACION
 FROM CLIENTE C
