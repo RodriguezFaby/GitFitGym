@@ -834,54 +834,8 @@ END EliminarEmpleadoInactivo;
 /*---------------correr el procedimiento---------------*/
 EXEC EliminarEmpleadoInactivo;
 ------------------------------------------------------------------------------
-------------------------- Funciones para la tabla EMPLEADO ---------------
 
-CREATE OR REPLACE FUNCTION GET_ALL_EMPLEADOS
-RETURN SYS_REFCURSOR
-IS
-    emp_cursor SYS_REFCURSOR;
-BEGIN
-    OPEN emp_cursor FOR
-        SELECT * FROM EMPLEADO;
-    RETURN emp_cursor;
-END;
-
-CREATE OR REPLACE FUNCTION GET_EMPLEADOS_BY_SALARIO(
-    E_SALARIO IN EMPLEADO.SALARIO%TYPE)
-RETURN SYS_REFCURSOR
-IS
-    emp_cursor SYS_REFCURSOR;
-BEGIN
-    OPEN emp_cursor FOR
-        SELECT * FROM EMPLEADO WHERE SALARIO = E_SALARIO;
-    RETURN emp_cursor;
-END;
-
-DECLARE
-    emp_cursor SYS_REFCURSOR;
-BEGIN
-    -- Llamar a la funcion para obtener todos los empleados
-    emp_cursor := GET_ALL_EMPLEADOS;
-
-    -- Iterar a traves del cursor y hacer algo con los resultados
-    FOR emp_rec IN emp_cursor
-    LOOP
-        DBMS_OUTPUT.PUT_LINE('ID_EMPLEADO: ' || emp_rec.ID_EMPLEADO || ', NOMBRE: ' || emp_rec.NOMBRE);
-    END LOOP;
-
-    -- Llamar a la funcion para obtener empleados por salario
-    emp_cursor := GET_EMPLEADOS_BY_SALARIO(50000);
-
-    -- Usar a traves del cursor y hacer algo con los resultados
-    FOR emp_rec IN emp_cursor
-    LOOP
-        DBMS_OUTPUT.PUT_LINE('ID_EMPLEADO: ' || emp_rec.ID_EMPLEADO || ', NOMBRE: ' || emp_rec.NOMBRE);
-    END LOOP;
-END;
-/
-
-
-
+-------------------------------
 -- Cursor para la tabla FACTURA donde el monto es de 50000
    CURSOR c_factura IS
         SELECT 1 AS ID_FACTURA, 1 AS ID_CLIENTE, 50000 AS MONTO, TO_DATE('2023-10-30', 'YYYY-MM-DD') AS FECHA,
@@ -975,7 +929,7 @@ END;
 	    WHERE MENSUALIDAD > 1;
 
 
-        -- Insertar datos en la tabla RESERVAS
+        -- Insertar datos en la tabla RESERVAS**
 BEGIN
     FOR reserva IN c_reservas
     LOOP
@@ -986,8 +940,9 @@ BEGIN
     COMMIT; -- Confirmar la transaccion
 END;
 
+
 BEGIN
--- Insertar datos en la tabla HORARIO
+-- Insertar datos en la tabla HORARIO**
     FOR horario IN c_horario
     LOOP
         INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
