@@ -284,7 +284,7 @@ EXEC INSERT_CLIENTE(5,'Lupe','Rojas','09/10/2018',1);
 EXEC INSERT_CLIENTE(6,'Gabriel','Valverde','09/10/2020',1);
 
 /*---------SP para modificar la mensualidad de los clientes-------------------*/
---2
+
 CREATE OR REPLACE PROCEDURE UPDATE_CLIENTE(
 	   c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE,
 	   c_MENSUALIDAD IN CLIENTE.MENSUALIDAD%TYPE)
@@ -302,6 +302,23 @@ END;
 /*---------------correr el procedimiento---------------*/
 EXEC UPDATE_CLIENTE(6,2);
 
+-------------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE UPDATE_CLIENTENOM(
+	   c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE,
+	   c_NOMBRE IN CLIENTE.NOMBRE%TYPE)
+AS
+BEGIN
+
+  UPDATE CLIENTE
+    SET NOMBRE = c_NOMBRE
+    WHERE ID_CLIENTE = c_ID_CLIENTE;
+    COMMIT;
+  DBMS_OUTPUT.PUT_LINE('El registro del cliente con ID: ' || c_ID_CLIENTE || ' ha sido modificado');
+
+END;
+
+/*---------------correr el procedimiento---------------*/
+EXEC UPDATE_CLIENTENOM(1,'Mau');
 
 /*---------SP para eliminar clientes-------------------*/
 --3
