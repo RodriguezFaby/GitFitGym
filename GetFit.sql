@@ -2020,3 +2020,79 @@ EXEC EmpleadoPackage.UpdateEmpleadoSalario;
 
 -- Ejecutar el procedimiento para eliminar empleados inactivos
 EXEC EmpleadoPackage.EliminarEmpleadoInactivo;
+
+--Paquetes de trigger
+CREATE OR REPLACE PACKAGE TriggersPackage AS
+  -- Trigger para actualizar la fecha de último movimiento en la tabla AUD_CLIENTE
+  CREATE OR REPLACE NONEDITIONABLE TRIGGER Trg_Actualizar_Fecha_Ultimo_Mov
+  BEFORE INSERT OR UPDATE OR DELETE ON AUD_CLIENTE
+  FOR EACH ROW
+  BEGIN
+    :new.FECHA_MOV := CURRENT_TIMESTAMP;
+  END Trg_Actualizar_Fecha_Ultimo_Mov;
+
+  -- Trigger para renovar automáticamente la membresía
+  CREATE OR REPLACE NONEDITIONABLE TRIGGER Trg_Renovar_Membresia
+  BEFORE INSERT ON MEMBRESIAS
+  FOR EACH ROW
+  DECLARE
+    v_fecha_actual DATE;
+  BEGIN
+    -- Obtener la fecha actual
+    SELECT SYSDATE INTO v_fecha_actual FROM DUAL;
+
+    -- Verificar si la fecha de vencimiento ha llegado
+    IF :new.FECHA_EXPIRACION <= v_fecha_actual THEN
+      -- Calcular la nueva fecha de inicio y de vencimiento para la renovación
+      :new.FECHA_INICIO := v_fecha_actual;
+      :new.FECHA_EXPIRACION := ADD_MONTHS(v_fecha_actual, 1); -- Por ejemplo, renovación por un mes
+
+      -- Opcional: Mostrar un mensaje de éxito en la consola de salida
+      DBMS_OUTPUT.PUT_LINE('Membresía renovada automáticamente.');
+    END IF;
+  END Trg_Renovar_Membresia;
+
+  -- Trigger para verificar el vencimiento de la membresía
+  CREATE OR REPLACE NONEDITIONABLE TRIGGER Trg_Vencimiento_Membresia
+  BEFORE INSERT OR UPDATE ON MEMBRESIAS
+  FOR EACH ROW
+  DECLARE
+    t_fecha_actual DATE;
+  BEGIN
+    -- Obtener la fecha actual
+    SELECT SYSDATE INTO t_fecha_actual FROM DUAL;
+
+    -- Verificar si la fecha de vencimiento ha pasado
+    IF :new.FECHA_EXPIRACION < t_fecha_actual THEN
+      -- Marcar la membresía como "Vencida"
+      :new.ESTADO := 'Vencida';
+    END IF;
+  END Trg_Vencimiento_Membresia;
+
+  -- Trigger para verificar la disponibilidad de espacios en una reserva
+  CREATE OR REPLACE NONEDITIONABLE TRIGGER Trg_Verificar_Reserva
+  BEFORE INSERT ON RESERVAS
+  FOR EACH ROW
+  DECLARE
+    v_cupos_disponibles INT;
+  BEGIN
+    -- Obtener el número de espacios disponibles en la clase
+    SELECT (CLASES.ESPACIOS - NVL(COUNT(*), 0))
+    INTO v_cupos_disponibles
+    FROM RESERVAS
+    JOIN CLASES ON RESERVAS.ID_CLASE = CLASES.ID_CLASE
+    WHERE RESERVAS.ID_CLASE = :new.ID_CLASE
+    GROUP BY CLASES.ESPACIOS;
+
+    -- Verificar si hay espacios disponibles
+    IF v_cupos_disponibles <= 0 THEN
+      --Cuando no hay espacios disponibles
+      RAISE_APPLICATION_ERROR(-20001, 'No hay espacios disponibles en esta clase. La reserva ha sido rechazada.');
+    END IF;
+  END Trg_Verificar_Reserva;
+END TriggersPackage;
+
+EXEC TriggersPackage.Trg_Actualizar_Fecha_Ultimo_Mov;
+EXEC TriggersPackage.Trg_Renovar_Membresia;
+EXEC TriggersPackage.Trg_Vencimiento_Membresia;
+EXEC TriggersPackage.Trg_Verificar_Reserva;
