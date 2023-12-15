@@ -1190,26 +1190,6 @@ JOIN MEMBRESIAS M ON C.ID_CLIENTE = M.ID_CLIENTE;
 SELECT * FROM VISTA_CLIENTES_MEMBRESIAS;
 
 
--- Actualizar informacion de un empleado************
-UPDATE EMPLEADO
-SET SALARIO = 55000, ESTADO = 'Inactivo'
-WHERE ID_EMPLEADO = 1;
-
--- Eliminar un empleado por ID**********************
-DELETE FROM EMPLEADO WHERE ID_EMPLEADO = 1;
-
---FUNCION DE FACTURA DE SU FECHA DE INICIO HASTA HOY********************
-SELECT MONTHS_BETWEEN(FECHA_INICIO, SYSDATE) FROM EMPLEADO;
-
---Funcion del numero total de reservas por el estado que se tiene*******
-SELECT ESTADO, COUNT(*) AS CANTIDAD
-FROM RESERVAS
-GROUP BY ESTADO;
-
---Funcion del promedio de montos de factura por cada cliente*************
-SELECT ID_CLIENTE, AVG(MONTO) AS PROMEDIO_MONTO
-FROM FACTURA
-GROUP BY ID_CLIENTE;
 
 --Funcion para ver todos los clientes--*************************
 CREATE OR REPLACE FUNCTION GET_ALL_CLIENTES
@@ -1221,6 +1201,7 @@ BEGIN
         SELECT * FROM CLIENTE;
     RETURN cliente_cursor;
 END;
+
 
 --Funcion para obtener todas las reservas--********************
 CREATE OR REPLACE FUNCTION GET_ALL_RESERVAS
@@ -1269,222 +1250,204 @@ BEGIN
     RETURN factura_cursor;
 END;
 
+--Consulta de Empleados
+CREATE OR REPLACE FUNCTION GET_ALL_EMPLEADOS
+RETURN SYS_REFCURSOR
+IS
+    empleados_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN empleados_cursor FOR
+        SELECT * FROM EMPLEADO;
+    RETURN empleados_cursor;
+END;
+
+--
 --PAQUETES--
-
+--Paquete sobre clientes 
 CREATE OR REPLACE PACKAGE ClientePackage AS
-    PROCEDURE InsertarCliente(
-        p_ID_CLIENTE IN NUMBER,
-        p_NOMBRE IN VARCHAR2,
-        p_APELLIDO IN VARCHAR2,
-        p_FECHAINGRESO IN DATE,
-        p_MENSUALIDAD IN NUMBER
-    );
+  -- Procedimiento para insertar un cliente
+  PROCEDURE InsertCliente(
+    c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE,
+    c_NOMBRE IN CLIENTE.NOMBRE%TYPE,
+    c_APELLIDO IN CLIENTE.APELLIDO %TYPE,
+    c_FECHAINGRESO IN CLIENTE.FECHAINGRESO%TYPE,
+    c_MENSUALIDAD IN CLIENTE.MENSUALIDAD%TYPE
+  );
 
-    PROCEDURE ActualizarMensualidad(
-        p_ID_CLIENTE IN NUMBER,
-        p_NUEVA_MENSUALIDAD IN NUMBER
-    );
+  -- Procedimiento para actualizar la mensualidad de un cliente
+  PROCEDURE UpdateClienteMensualidad(
+    c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE,
+    c_MENSUALIDAD IN CLIENTE.MENSUALIDAD%TYPE
+  );
 
-    PROCEDURE EliminarCliente(
-        p_ID_CLIENTE IN NUMBER
-    );
+  -- Procedimiento para actualizar el nombre de un cliente
+  PROCEDURE UpdateClienteNombre(
+    c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE,
+    c_NOMBRE IN CLIENTE.NOMBRE%TYPE
+  );
 
-    FUNCTION ObtenerClientes RETURN SYS_REFCURSOR;
+  -- Procedimiento para eliminar un cliente
+  PROCEDURE DeleteCliente(c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE);
+END ClientePackage;
+
+CREATE OR REPLACE PACKAGE BODY ClientePackage AS
+  -- Implementación del procedimiento para insertar un cliente
+  PROCEDURE InsertCliente(
+    c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE,
+    c_NOMBRE IN CLIENTE.NOMBRE%TYPE,
+    c_APELLIDO IN CLIENTE.APELLIDO %TYPE,
+    c_FECHAINGRESO IN CLIENTE.FECHAINGRESO%TYPE,
+    c_MENSUALIDAD IN CLIENTE.MENSUALIDAD%TYPE
+  ) AS
+  BEGIN
+    INSERT INTO CLIENTE ("ID_CLIENTE", "NOMBRE", "APELLIDO", "FECHAINGRESO","MENSUALIDAD") 
+    VALUES (c_ID_CLIENTE, c_NOMBRE, c_APELLIDO, c_FECHAINGRESO, c_MENSUALIDAD);
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro de ' || c_NOMBRE || ' ha sido insertado');
+  END;
+
+  -- Implementación del procedimiento para actualizar la mensualidad de un cliente
+  PROCEDURE UpdateClienteMensualidad(
+    c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE,
+    c_MENSUALIDAD IN CLIENTE.MENSUALIDAD%TYPE
+  ) AS
+  BEGIN
+    UPDATE CLIENTE
+      SET MENSUALIDAD = c_MENSUALIDAD
+      WHERE ID_CLIENTE = c_ID_CLIENTE;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro del cliente con ID: ' || c_ID_CLIENTE || ' ha sido modificado');
+  END;
+
+  -- Implementación del procedimiento para actualizar el nombre de un cliente
+  PROCEDURE UpdateClienteNombre(
+    c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE,
+    c_NOMBRE IN CLIENTE.NOMBRE%TYPE
+  ) AS
+  BEGIN
+    UPDATE CLIENTE
+      SET NOMBRE = c_NOMBRE
+      WHERE ID_CLIENTE = c_ID_CLIENTE;
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro del cliente con ID: ' || c_ID_CLIENTE || ' ha sido modificado');
+  END;
+
+  -- Implementación del procedimiento para eliminar un cliente
+  PROCEDURE DeleteCliente(c_ID_CLIENTE IN CLIENTE.ID_CLIENTE%TYPE) AS
+  BEGIN
+    DELETE FROM CLIENTE
+      WHERE ID_CLIENTE = c_ID_CLIENTE;
+    DBMS_OUTPUT.PUT_LINE('El registro del cliente con ID: ' || c_ID_CLIENTE || ' ha sido eliminado');
+  END;
 END ClientePackage;
 
 
-CREATE OR REPLACE PACKAGE MembresiaPackage AS
-    PROCEDURE InsertarMembresia(
-        p_ID_MEMBRESIA IN NUMBER,
-        p_TIPO IN VARCHAR2,
-        p_ESTADO IN VARCHAR2,
-        p_FECHA_INICIO IN DATE,
-        p_FECHA_EXPIRACION IN DATE,
-        p_ID_CLIENTE IN NUMBER
-    );
+-- Ejecutar el procedimiento para insertar un cliente
+EXEC ClientePackage.InsertCliente(5, 'Andres', 'Soza', TO_DATE('09/10/2010', 'MM/DD/YYYY'), 2);
 
-    PROCEDURE ActualizarEstadoMembresia(
-        p_ID_CLIENTE IN NUMBER,
-        p_NUEVO_ESTADO IN VARCHAR2
-    );
+-- Ejecutar el procedimiento para actualizar la mensualidad de un cliente
+EXEC ClientePackage.UpdateClienteMensualidad(6, 2);
 
-    PROCEDURE EliminarMembresia(
-        p_ID_MEMBRESIA IN NUMBER
-    );
+-- Ejecutar el procedimiento para actualizar el nombre de un cliente
+EXEC ClientePackage.UpdateClienteNombre(2, 'Lucas');
 
-    FUNCTION ObtenerMembresias RETURN SYS_REFCURSOR;
-END MembresiaPackage;
+-- Ejecutar el procedimiento para eliminar un cliente
+EXEC ClientePackage.DeleteCliente(6);
 
-
-CREATE OR REPLACE PACKAGE EmpleadoPackage AS
-    PROCEDURE InsertarEmpleado(
-        p_ID_EMPLEADO IN NUMBER,
-        p_NOMBRE IN VARCHAR2,
-        p_APELLIDO IN VARCHAR2,
-        p_FECHA_INICIO IN DATE,
-        p_ESTADO IN VARCHAR2,
-        p_SALARIO IN NUMBER,
-        p_EMAIL IN VARCHAR2,
-        p_TELEFONO IN NUMBER,
-        p_PUESTO IN VARCHAR2
-    );
-
-    PROCEDURE ActualizarSalario(
-        p_ID_EMPLEADO IN NUMBER,
-        p_NUEVO_SALARIO IN NUMBER
-    );
-
-    PROCEDURE EliminarEmpleado(
-        p_ID_EMPLEADO IN NUMBER
-    );
-
-    FUNCTION ObtenerEmpleados RETURN SYS_REFCURSOR;
-END EmpleadoPackage;
-
-
-CREATE OR REPLACE PACKAGE ClasePackage AS
-    PROCEDURE InsertarClase(
-        p_ID_CLASE IN NUMBER,
-        p_DESCRIPCION IN VARCHAR2,
-        p_ESTADO IN VARCHAR2,
-        p_ESPACIOS IN NUMBER,
-        p_ID_EMPLEADO IN NUMBER,
-        p_ID_HORARIO IN NUMBER
-    );
-
-    PROCEDURE ActualizarEstadoClase(
-        p_ID_CLASE IN NUMBER,
-        p_NUEVO_ESTADO IN VARCHAR2
-    );
-
-    PROCEDURE EliminarClase(
-        p_ID_CLASE IN NUMBER
-    );
-
-    FUNCTION ObtenerClases RETURN SYS_REFCURSOR;
-END ClasePackage;
-
-
+--Paquete Reservas
 CREATE OR REPLACE PACKAGE ReservaPackage AS
-    PROCEDURE InsertarReserva(
-        p_ID_RESERVA IN NUMBER,
-        p_ESTADO IN VARCHAR2,
-        p_ID_CLASE IN NUMBER,
-        p_ID_CLIENTE IN NUMBER
-    );
+  -- Procedimiento para insertar una reserva
+  PROCEDURE InsertReserva(
+    r_ID_RESERVA IN RESERVAS.ID_RESERVA%TYPE,
+    r_ESTADO_RESERVA IN RESERVAS.ESTADO%TYPE,
+    r_ID_CLASE IN RESERVAS.ID_CLASE%TYPE,
+    r_ID_CLIENTE IN RESERVAS.ID_CLIENTE%TYPE
+  );
 
-    PROCEDURE ActualizarEstadoReserva(
-        p_ID_RESERVA IN NUMBER,
-        p_NUEVO_ESTADO IN VARCHAR2
-    );
+  -- Procedimiento para actualizar el estado de una reserva
+  PROCEDURE UpdateReservaEstado(
+    r_ID_RESERVA IN RESERVAS.ID_RESERVA%TYPE,
+    r_ESTADO IN RESERVAS.ESTADO%TYPE
+  );
 
-    PROCEDURE EliminarReserva(
-        p_ID_RESERVA IN NUMBER
-    );
-
-    FUNCTION ObtenerReservas RETURN SYS_REFCURSOR;
+  -- Procedimiento para eliminar una reserva
+  PROCEDURE DeleteReserva(r_ID_RESERVA IN RESERVAS.ID_RESERVA%TYPE);
 END ReservaPackage;
 
+CREATE OR REPLACE PACKAGE BODY ReservaPackage AS
+  -- Implementación del procedimiento para insertar una reserva
+  PROCEDURE InsertReserva(
+    r_ID_RESERVA IN RESERVAS.ID_RESERVA%TYPE,
+    r_ESTADO_RESERVA IN RESERVAS.ESTADO%TYPE,
+    r_ID_CLASE IN RESERVAS.ID_CLASE%TYPE,
+    r_ID_CLIENTE IN RESERVAS.ID_CLIENTE%TYPE
+  ) AS
+    c_ESPACIOS_DISPONIBLES INT;
+  BEGIN
+    --Cuantos espacios hay disponibles en la clase
+    SELECT ESPACIOS INTO c_ESPACIOS_DISPONIBLES
+    FROM CLASES
+    WHERE ID_CLASE = r_ID_CLASE;
 
-CREATE OR REPLACE PACKAGE HorarioPackage AS
-    PROCEDURE InsertarHorario(
-        p_ID_HORARIO IN NUMBER,
-        p_DIA IN VARCHAR2,
-        p_HORA_INICIO IN TIMESTAMP,
-        p_HORA_FIN IN TIMESTAMP
-    );
+    IF c_ESPACIOS_DISPONIBLES > 0 THEN
+      --Si hay espacios, se inserta la reserva
+      INSERT INTO RESERVAS (
+        ID_RESERVA,
+        ESTADO,
+        ID_CLASE,
+        ID_CLIENTE
+      ) VALUES (
+        r_ID_RESERVA,
+        r_ESTADO_RESERVA,
+        r_ID_CLASE,
+        r_ID_CLIENTE
+      );
 
-    PROCEDURE ActualizarDiaHorario(
-        p_ID_HORARIO IN NUMBER,
-        p_NUEVO_DIA IN VARCHAR2
-    );
+      --Se actualiza la tabla Clases y se elimina un espacio
+      UPDATE CLASES
+      SET ESPACIOS = c_ESPACIOS_DISPONIBLES - 1
+      WHERE ID_CLASE = r_ID_CLASE;
 
-    PROCEDURE EliminarHorario(
-        p_ID_HORARIO IN NUMBER
-    );
+      COMMIT;
+      DBMS_OUTPUT.PUT_LINE('La reserva fue creada y se redujo un espacio en la clase ' || r_ID_CLASE);
+    ELSE
+      -- Si no hay espacio
+      DBMS_OUTPUT.PUT_LINE('No hay suficiente espacio para esta clase.');
+    END IF;
+  END InsertReserva;
 
-    FUNCTION ObtenerHorarios RETURN SYS_REFCURSOR;
-END HorarioPackage;
+  -- Implementación del procedimiento para actualizar el estado de una reserva
+  PROCEDURE UpdateReservaEstado(
+    r_ID_RESERVA IN RESERVAS.ID_RESERVA%TYPE,
+    r_ESTADO IN RESERVAS.ESTADO%TYPE
+  ) AS
+  BEGIN
+    UPDATE RESERVAS
+      SET ESTADO = r_ESTADO
+      WHERE ID_RESERVA = r_ID_RESERVA;
 
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro del estado con ID: ' || r_ID_RESERVA || ' ha sido modificado');
+  END UpdateReservaEstado;
 
-CREATE OR REPLACE PACKAGE FacturaPackage AS
-    PROCEDURE InsertarFactura(
-        p_ID_FACTURA IN NUMBER,
-        p_ID_CLIENTE IN NUMBER,
-        p_MONTO IN NUMBER,
-        p_FECHA IN DATE,
-        p_DESCRIPCION IN VARCHAR2
-    );
+  -- Implementación del procedimiento para eliminar una reserva
+  PROCEDURE DeleteReserva(r_ID_RESERVA IN RESERVAS.ID_RESERVA%TYPE) AS
+  BEGIN
+    DELETE FROM RESERVAS
+      WHERE ID_RESERVA = r_ID_RESERVA;
 
-    PROCEDURE ActualizarMontoFactura(
-        p_ID_FACTURA IN NUMBER,
-        p_NUEVO_MONTO IN NUMBER
-    );
+    DBMS_OUTPUT.PUT_LINE('La reserva con ID: ' || r_ID_RESERVA || ' ha sido eliminada');
+  END DeleteReserva;
+END ReservaPackage;
 
-    PROCEDURE EliminarFactura(
-        p_ID_FACTURA IN NUMBER
-    );
+-- Ejecutar el procedimiento para insertar una reserva
+EXEC ReservaPackage.InsertReserva(5, 'Activa', 3, 3);
 
-    FUNCTION ObtenerFacturas RETURN SYS_REFCURSOR;
-END FacturaPackage;
+-- Ejecutar el procedimiento para actualizar el estado de una reserva
+EXEC ReservaPackage.UpdateReservaEstado(1, 'Pendiente');
 
-
-CREATE OR REPLACE PACKAGE EquipoPackage AS
-    PROCEDURE InsertarEquipo(
-        p_ID_EQUIPO IN NUMBER,
-        p_NOMBRE IN VARCHAR2,
-        p_ESTADO IN VARCHAR2
-    );
-
-    PROCEDURE ActualizarEstadoEquipo(
-        p_ID_EQUIPO IN NUMBER,
-        p_NUEVO_ESTADO IN VARCHAR2
-    );
-
-    PROCEDURE EliminarEquipo(
-        p_ID_EQUIPO IN NUMBER
-    );
-
-    FUNCTION ObtenerEquipos RETURN SYS_REFCURSOR;
-END EquipoPackage;
-
-
-CREATE OR REPLACE PACKAGE EvaluacionPackage AS
-    PROCEDURE InsertarEvaluacion(
-        p_ID_EVALUACION IN NUMBER,
-        p_FECHA IN DATE,
-        p_PUNTUACION IN NUMBER,
-        p_ID_CLIENTE IN NUMBER,
-        p_ID_EMPLEADO IN NUMBER
-    );
-
-    PROCEDURE ActualizarPuntuacionEvaluacion(
-        p_ID_EVALUACION IN NUMBER,
-        p_NUEVA_PUNTUACION IN NUMBER
-    );
-
-    PROCEDURE EliminarEvaluacion(
-        p_ID_EVALUACION IN NUMBER
-    );
-
-    FUNCTION ObtenerEvaluaciones RETURN SYS_REFCURSOR;
-END EvaluacionPackage;
-
-
-CREATE OR REPLACE PACKAGE ReportePackage AS
-    FUNCTION GenerarReporteClientes RETURN SYS_REFCURSOR;
-
-    FUNCTION GenerarReporteMembresias RETURN SYS_REFCURSOR;
-
-    FUNCTION GenerarReporteIngresos(
-        p_FECHA_INICIO IN DATE,
-        p_FECHA_FIN IN DATE
-    ) RETURN SYS_REFCURSOR;
-END ReportePackage;
-
-
-
---PAQUETES FIN--
+-- Ejecutar el procedimiento para eliminar una reserva
+EXEC ReservaPackage.DeleteReserva(4);
 
 
 --Paquete Membresias--
@@ -1512,11 +1475,10 @@ CREATE OR REPLACE PACKAGE Membresia_Package AS
   );
 
 END Membresia_Package;
-/
 
 CREATE OR REPLACE PACKAGE BODY Membresia_Package AS
 
-  /* ImplementaciÃ³n del procedimiento para insertar una membresÃ­a */
+  /* Implementacion del procedimiento para insertar una membresia */
   PROCEDURE INSERT_MEMBRESIA(
     m_ID_MEMBRESIA IN MEMBRESIAS.ID_MEMBRESIA%TYPE,
     m_TIPO IN MEMBRESIAS.TIPO%TYPE,
@@ -1533,7 +1495,7 @@ CREATE OR REPLACE PACKAGE BODY Membresia_Package AS
     DBMS_OUTPUT.PUT_LINE('El registro de ' || m_ID_MEMBRESIA || ' ha sido insertado');
   END;
 
-  /* ImplementaciÃ³n del procedimiento para actualizar el estado de una membresÃ­a por ID de cliente */
+  /* Implementacion del procedimiento para actualizar el estado de una membresia por ID de cliente */
   PROCEDURE UPDATE_MEMBRESIAS(
     m_ID_CLIENTE IN MEMBRESIAS.ID_CLIENTE%TYPE,
     m_ESTADO IN MEMBRESIAS.ESTADO%TYPE
@@ -1547,7 +1509,7 @@ CREATE OR REPLACE PACKAGE BODY Membresia_Package AS
     DBMS_OUTPUT.PUT_LINE('El estado de la membresÃ­a del cliente con ID: ' || m_ID_CLIENTE || ' ha sido modificado');
   END;
 
-  /* ImplementaciÃ³n del procedimiento para eliminar una membresÃ­a por ID de membresÃ­a */
+  /* Implementacion del procedimiento para eliminar una membresia por ID de membresÃ­a */
   PROCEDURE DELETE_MEMBRESIA(
     m_ID_MEMBRESIA IN MEMBRESIAS.ID_MEMBRESIA%TYPE
   )
@@ -1559,7 +1521,6 @@ CREATE OR REPLACE PACKAGE BODY Membresia_Package AS
   END;
 
 END Membresia_Package;
-/
 
 -- Ejemplo de ejecuciÃ³n del procedimiento INSERT_MEMBRESIA
 EXEC Membresia_Package.INSERT_MEMBRESIA(5, 'Premium', 'Activo', TO_DATE('10/11/2023', 'DD/MM/YYYY'), TO_DATE('10/12/2023', 'DD/MM/YYYY'), 5);
@@ -1570,3 +1531,492 @@ EXEC Membresia_Package.UPDATE_MEMBRESIAS(3, 'Inactivo');
 -- Ejemplo de ejecuciÃ³n del procedimiento DELETE_MEMBRESIA
 EXEC Membresia_Package.DELETE_MEMBRESIA(4);
 
+--Paquete Horario
+CREATE OR REPLACE PACKAGE HorarioPackage AS
+  -- Procedimiento para insertar un horario
+  PROCEDURE InsertHorario(
+    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+    h_DIA IN HORARIO.DIA%TYPE,
+    h_HORA_INICIO IN HORARIO.HORA_INICIO%TYPE,
+    h_HORA_FIN IN HORARIO.HORA_FIN%TYPE
+  );
+
+  -- Procedimiento para actualizar el día de un horario
+  PROCEDURE UpdateHorarioDia(
+    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+    h_DIA IN HORARIO.DIA%TYPE
+  );
+
+  -- Procedimiento para actualizar la hora de inicio de un horario
+  PROCEDURE UpdateHorarioInicio(
+    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+    h_HORA_INICIO IN HORARIO.HORA_INICIO%TYPE
+  );
+
+  -- Procedimiento para actualizar la hora de finalización de un horario
+  PROCEDURE UpdateHorarioFin(
+    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+    h_HORA_FIN IN HORARIO.HORA_FIN%TYPE
+  );
+
+  -- Procedimiento para eliminar un horario
+  PROCEDURE DeleteHorario(h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE);
+END HorarioPackage;
+
+CREATE OR REPLACE PACKAGE BODY HorarioPackage AS
+  -- Implementación del procedimiento para insertar un horario
+  PROCEDURE InsertHorario(
+    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+    h_DIA IN HORARIO.DIA%TYPE,
+    h_HORA_INICIO IN HORARIO.HORA_INICIO%TYPE,
+    h_HORA_FIN IN HORARIO.HORA_FIN%TYPE
+  ) AS
+  BEGIN
+    INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN)
+    VALUES (h_ID_HORARIO, h_DIA, h_HORA_INICIO, h_HORA_FIN);
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido insertado.');
+  END InsertHorario;
+
+  -- Implementación del procedimiento para actualizar el día de un horario
+  PROCEDURE UpdateHorarioDia(
+    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+    h_DIA IN HORARIO.DIA%TYPE
+  ) AS
+  BEGIN
+    UPDATE HORARIO
+      SET DIA = h_DIA
+      WHERE ID_HORARIO = h_ID_HORARIO;
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El día para el horario con ID: ' || h_ID_HORARIO || ' ha sido modificado');
+  END UpdateHorarioDia;
+
+  -- Implementación del procedimiento para actualizar la hora de inicio de un horario
+  PROCEDURE UpdateHorarioInicio(
+    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+    h_HORA_INICIO IN HORARIO.HORA_INICIO%TYPE
+  ) AS
+  BEGIN
+    UPDATE HORARIO
+      SET HORA_INICIO = h_HORA_INICIO
+      WHERE ID_HORARIO = h_ID_HORARIO;
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('La hora de inicio para el horario con ID: ' || h_ID_HORARIO || ' ha sido modificada a ' || h_HORA_INICIO);
+  END UpdateHorarioInicio;
+
+  -- Implementación del procedimiento para actualizar la hora de finalización de un horario
+  PROCEDURE UpdateHorarioFin(
+    h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE,
+    h_HORA_FIN IN HORARIO.HORA_FIN%TYPE
+  ) AS
+  BEGIN
+    UPDATE HORARIO
+      SET HORA_FIN = h_HORA_FIN
+      WHERE ID_HORARIO = h_ID_HORARIO;
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('La hora de finalización para el horario con ID: ' || h_ID_HORARIO || ' ha sido modificada a ' || h_HORA_FIN);
+  END UpdateHorarioFin;
+
+  -- Implementación del procedimiento para eliminar un horario
+  PROCEDURE DeleteHorario(h_ID_HORARIO IN HORARIO.ID_HORARIO%TYPE) AS
+  BEGIN
+    DELETE FROM HORARIO
+      WHERE ID_HORARIO = h_ID_HORARIO;
+
+    DBMS_OUTPUT.PUT_LINE('El horario con ID: ' || h_ID_HORARIO || ' ha sido eliminado');
+  END DeleteHorario;
+END HorarioPackage;
+
+-- Ejecutar el procedimiento para insertar un horario
+EXEC HorarioPackage.InsertHorario(4, 'Miercoles', TO_TIMESTAMP('18:00', 'HH24:MI:SS'), TO_TIMESTAMP('20:00', 'HH24:MI:SS'));
+
+-- Ejecutar el procedimiento para actualizar el día de un horario
+EXEC HorarioPackage.UpdateHorarioDia(3, 'Lunes');
+
+-- Ejecutar el procedimiento para actualizar la hora de inicio de un horario
+EXEC HorarioPackage.UpdateHorarioInicio(3, TO_TIMESTAMP('14:00', 'HH24:MI:SS'));
+
+-- Ejecutar el procedimiento para actualizar la hora de finalización de un horario
+EXEC HorarioPackage.UpdateHorarioFin(3, TO_TIMESTAMP('18:00', 'HH24:MI:SS'));
+
+-- Ejecutar el procedimiento para eliminar un horario
+EXEC HorarioPackage.DeleteHorario(4);
+
+--Paquete Facturas
+CREATE OR REPLACE PACKAGE FacturaPackage AS
+  -- Procedimiento para insertar una factura
+  PROCEDURE InsertFactura(
+    f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
+    f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE,
+    f_MONTO IN FACTURA.MONTO%TYPE,
+    f_FECHA IN FACTURA.FECHA%TYPE,
+    f_DESCRIPCION IN FACTURA.DESCRIPCION%TYPE
+  );
+
+  -- Procedimiento para actualizar el cliente en la tabla FACTURA
+  PROCEDURE UpdateFactura(
+    f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
+    f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE
+  );
+
+  -- Procedimiento para eliminar una factura
+  PROCEDURE DeleteFactura(f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE);
+END FacturaPackage;
+
+CREATE OR REPLACE PACKAGE BODY FacturaPackage AS
+  -- Implementación del procedimiento para insertar una factura
+  PROCEDURE InsertFactura(
+    f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
+    f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE,
+    f_MONTO IN FACTURA.MONTO%TYPE,
+    f_FECHA IN FACTURA.FECHA%TYPE,
+    f_DESCRIPCION IN FACTURA.DESCRIPCION%TYPE
+  ) AS
+  BEGIN
+    INSERT INTO FACTURA(ID_FACTURA, ID_CLIENTE, MONTO, FECHA, DESCRIPCION)
+    VALUES (f_ID_FACTURA, f_ID_CLIENTE, f_MONTO, f_FECHA, f_DESCRIPCION);
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro de factura con ID: ' || f_ID_FACTURA || ' ha sido insertado.');
+  END InsertFactura;
+
+  -- Implementación del procedimiento para actualizar el cliente en la tabla FACTURA
+  PROCEDURE UpdateFactura(
+    f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE,
+    f_ID_CLIENTE IN FACTURA.ID_CLIENTE%TYPE
+  ) AS
+  BEGIN
+    UPDATE FACTURA
+      SET ID_CLIENTE = f_ID_CLIENTE
+      WHERE ID_FACTURA = f_ID_FACTURA;
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('La factura con el ID: ' || f_ID_FACTURA || ' ha sido modificado');
+  END UpdateFactura;
+
+  -- Implementación del procedimiento para eliminar una factura
+  PROCEDURE DeleteFactura(f_ID_FACTURA IN FACTURA.ID_FACTURA%TYPE) AS
+  BEGIN
+    DELETE FROM FACTURA
+      WHERE ID_FACTURA = f_ID_FACTURA;
+
+    DBMS_OUTPUT.PUT_LINE('La factura con ID: ' || f_ID_FACTURA || ' ha sido eliminada');
+  END DeleteFactura;
+END FacturaPackage;
+
+-- Ejecutar el procedimiento para insertar una factura
+EXEC FacturaPackage.InsertFactura(4, 2, 50000, TO_DATE('2023-10-30', 'YYYY-MM-DD'), 'Pago de membresia');
+
+-- Ejecutar el procedimiento para actualizar el cliente en la tabla FACTURA
+EXEC FacturaPackage.UpdateFactura(1, 3);
+
+-- Ejecutar el procedimiento para eliminar una factura
+EXEC FacturaPackage.DeleteFactura(5);
+
+--Paquete Clase
+CREATE OR REPLACE PACKAGE ClasePackage AS
+  -- Procedimiento para insertar una clase
+  PROCEDURE InsertClase(
+    c_ID_CLASE IN CLASES.ID_CLASE%TYPE,
+    c_DESCRIPCION IN CLASES.DESCRIPCION%TYPE,
+    c_ESTADO IN CLASES.ESTADO%TYPE,
+    c_ESPACIOS IN CLASES.ESPACIOS%TYPE,
+    c_ID_EMPLEADO IN CLASES.ID_EMPLEADO%TYPE,
+    c_ID_HORARIO IN CLASES.ID_HORARIO%TYPE
+  );
+
+  -- Procedimiento para actualizar el empleado encargado de una clase
+  PROCEDURE UpdateClaseEmpleado(
+    c_ID_CLASE IN CLASES.ID_CLASE%TYPE,
+    c_ID_EMPLEADO IN CLASES.ID_EMPLEADO%TYPE
+  );
+
+  -- Procedimiento para eliminar una clase
+  PROCEDURE DeleteClase(c_ID_CLASE IN CLASES.ID_CLASE%TYPE);
+
+  -- Procedimiento para modificar el nombre de la clase
+  PROCEDURE UpdateClaseDescripcion(
+    c_ID_CLASE IN CLASES.ID_CLASE%TYPE,
+    c_DESCRIPCION IN CLASES.DESCRIPCION%TYPE
+  );
+END ClasePackage;
+
+
+CREATE OR REPLACE PACKAGE BODY ClasePackage AS
+  -- Implementación del procedimiento para insertar una clase
+  PROCEDURE InsertClase(
+    c_ID_CLASE IN CLASES.ID_CLASE%TYPE,
+    c_DESCRIPCION IN CLASES.DESCRIPCION%TYPE,
+    c_ESTADO IN CLASES.ESTADO%TYPE,
+    c_ESPACIOS IN CLASES.ESPACIOS%TYPE,
+    c_ID_EMPLEADO IN CLASES.ID_EMPLEADO%TYPE,
+    c_ID_HORARIO IN CLASES.ID_HORARIO%TYPE
+  ) AS
+  BEGIN
+    INSERT INTO CLASES("ID_CLASE", "DESCRIPCION", "ESTADO", "ESPACIOS", "ID_EMPLEADO", "ID_HORARIO") 
+    VALUES (c_ID_CLASE, c_DESCRIPCION, c_ESTADO, c_ESPACIOS, c_ID_EMPLEADO, c_ID_HORARIO);
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro para la clase con ID ' || c_ID_CLASE || ' ha sido insertado');
+  END InsertClase;
+
+  -- Implementación del procedimiento para actualizar el empleado encargado de una clase
+  PROCEDURE UpdateClaseEmpleado(
+    c_ID_CLASE IN CLASES.ID_CLASE%TYPE,
+    c_ID_EMPLEADO IN CLASES.ID_EMPLEADO%TYPE
+  ) AS
+  BEGIN
+    UPDATE CLASES
+      SET ID_EMPLEADO = c_ID_EMPLEADO
+      WHERE ID_CLASE = c_ID_CLASE;
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El encargado de impartir la clase ahora es el instructor con ID: ' || c_ID_EMPLEADO);
+  END UpdateClaseEmpleado;
+
+  -- Implementación del procedimiento para eliminar una clase
+  PROCEDURE DeleteClase(c_ID_CLASE IN CLASES.ID_CLASE%TYPE) AS
+  BEGIN
+    DELETE FROM CLASES
+      WHERE ID_CLASE = c_ID_CLASE;
+
+    DBMS_OUTPUT.PUT_LINE('La clase con el ID: ' || c_ID_CLASE || ' ha sido eliminada');
+  END DeleteClase;
+
+  -- Implementación del procedimiento para modificar el nombre de la clase
+  PROCEDURE UpdateClaseDescripcion(
+    c_ID_CLASE IN CLASES.ID_CLASE%TYPE,
+    c_DESCRIPCION IN CLASES.DESCRIPCION%TYPE
+  ) AS
+  BEGIN
+    UPDATE CLASES
+      SET DESCRIPCION = c_DESCRIPCION
+      WHERE ID_CLASE = c_ID_CLASE;
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('La clase con ID: ' || c_ID_CLASE || ' ahora se llama ' || c_DESCRIPCION);
+  END UpdateClaseDescripcion;
+END ClasePackage;
+
+-- Ejecutar el procedimiento para insertar una clase
+EXEC ClasePackage.InsertClase(4, 'GAP', 'Activa', 10, 1, 1);
+
+-- Ejecutar el procedimiento para actualizar el empleado encargado de una clase
+EXEC ClasePackage.UpdateClaseEmpleado(4, 3);
+
+-- Ejecutar el procedimiento para eliminar una clase
+EXEC ClasePackage.DeleteClase(4);
+
+-- Ejecutar el procedimiento para modificar el nombre de la clase
+EXEC ClasePackage.UpdateClaseDescripcion(2, 'Kickbox');
+
+--Paquete Empleado
+CREATE OR REPLACE PACKAGE EmpleadoPackage AS
+  -- Procedimiento para insertar un empleado
+  PROCEDURE InsertEmpleado(
+    e_ID_EMPLEADO IN EMPLEADO.ID_EMPLEADO%TYPE,
+    e_NOMBRE IN EMPLEADO.NOMBRE%TYPE,
+    e_APELLIDO IN EMPLEADO.APELLIDO%TYPE,
+    e_FECHA_INICIO IN EMPLEADO.FECHA_INICIO%TYPE,
+    e_ESTADO IN EMPLEADO.ESTADO%TYPE,
+    e_SALARIO IN EMPLEADO.SALARIO%TYPE,
+    e_EMAIL IN EMPLEADO.EMAIL%TYPE,
+    e_TELEFONO IN EMPLEADO.TELEFONO%TYPE,
+    e_PUESTO IN EMPLEADO.PUESTO%TYPE
+  );
+
+  -- Procedimiento para modificar el salario de los empleados
+  PROCEDURE UpdateEmpleadoSalario;
+
+  -- Procedimiento para eliminar empleados inactivos
+  PROCEDURE EliminarEmpleadoInactivo;
+END EmpleadoPackage;
+
+CREATE OR REPLACE PACKAGE BODY EmpleadoPackage AS
+  -- Implementación del procedimiento para insertar un empleado
+  PROCEDURE InsertEmpleado(
+    e_ID_EMPLEADO IN EMPLEADO.ID_EMPLEADO%TYPE,
+    e_NOMBRE IN EMPLEADO.NOMBRE%TYPE,
+    e_APELLIDO IN EMPLEADO.APELLIDO%TYPE,
+    e_FECHA_INICIO IN EMPLEADO.FECHA_INICIO%TYPE,
+    e_ESTADO IN EMPLEADO.ESTADO%TYPE,
+    e_SALARIO IN EMPLEADO.SALARIO%TYPE,
+    e_EMAIL IN EMPLEADO.EMAIL%TYPE,
+    e_TELEFONO IN EMPLEADO.TELEFONO%TYPE,
+    e_PUESTO IN EMPLEADO.PUESTO%TYPE
+  ) AS
+  BEGIN
+    INSERT INTO EMPLEADO(
+      "ID_EMPLEADO",
+      "NOMBRE",
+      "APELLIDO",
+      "FECHA_INICIO",
+      "ESTADO",
+      "SALARIO",
+      "EMAIL",
+      "TELEFONO",
+      "PUESTO"
+    ) 
+    VALUES (
+      e_ID_EMPLEADO,
+      e_NOMBRE,
+      e_APELLIDO,
+      e_FECHA_INICIO,
+      e_ESTADO,
+      e_SALARIO,
+      e_EMAIL,
+      e_TELEFONO,
+      e_PUESTO
+    );
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro del empleado ' || e_NOMBRE || ' ' || e_APELLIDO || ' ha sido insertado');
+  END InsertEmpleado;
+
+  -- Implementación del procedimiento para modificar el salario de los empleados
+  PROCEDURE UpdateEmpleadoSalario AS
+  BEGIN
+    FOR EMPLEADO IN (SELECT * FROM EMPLEADO) LOOP
+      DECLARE
+        anios_trabajados INT;
+      BEGIN
+        -- Calcular los años
+        SELECT TRUNC(MONTHS_BETWEEN(SYSDATE, EMPLEADO.FECHA_INICIO) / 12) INTO anios_trabajados
+        FROM DUAL;
+
+        -- Incrementar salario si tiene más de 5 años a un 5%
+        IF anios_trabajados > 5 THEN
+          UPDATE EMPLEADO
+          SET SALARIO = SALARIO * 1.05
+          WHERE ID_EMPLEADO = EMPLEADO.ID_EMPLEADO;
+        END IF;
+      END;
+    END LOOP;
+    COMMIT;
+  END UpdateEmpleadoSalario;
+
+  -- Implementación del procedimiento para eliminar empleados inactivos
+  PROCEDURE EliminarEmpleadoInactivo AS
+  BEGIN
+    -- Eliminar empleados inactivos
+    DELETE FROM EMPLEADO WHERE ESTADO = 'Inactivo';
+    
+    -- Confirmar la transacción
+    COMMIT;
+    
+    -- Mostrar mensaje de inactivos
+    DBMS_OUTPUT.PUT_LINE('Empleados inactivos eliminados correctamente.');
+  END EliminarEmpleadoInactivo;
+END EmpleadoPackage;
+
+CREATE OR REPLACE PACKAGE EmpleadoPackage AS
+  -- Procedimiento para insertar un empleado
+  PROCEDURE InsertEmpleado(
+    e_ID_EMPLEADO IN EMPLEADO.ID_EMPLEADO%TYPE,
+    e_NOMBRE IN EMPLEADO.NOMBRE%TYPE,
+    e_APELLIDO IN EMPLEADO.APELLIDO%TYPE,
+    e_FECHA_INICIO IN EMPLEADO.FECHA_INICIO%TYPE,
+    e_ESTADO IN EMPLEADO.ESTADO%TYPE,
+    e_SALARIO IN EMPLEADO.SALARIO%TYPE,
+    e_EMAIL IN EMPLEADO.EMAIL%TYPE,
+    e_TELEFONO IN EMPLEADO.TELEFONO%TYPE,
+    e_PUESTO IN EMPLEADO.PUESTO%TYPE
+  );
+
+  -- Procedimiento para modificar el salario de los empleados
+  PROCEDURE UpdateEmpleadoSalario;
+
+  -- Procedimiento para eliminar empleados inactivos
+  PROCEDURE EliminarEmpleadoInactivo;
+END EmpleadoPackage;
+/
+
+CREATE OR REPLACE PACKAGE BODY EmpleadoPackage AS
+  -- Implementación del procedimiento para insertar un empleado
+  PROCEDURE InsertEmpleado(
+    e_ID_EMPLEADO IN EMPLEADO.ID_EMPLEADO%TYPE,
+    e_NOMBRE IN EMPLEADO.NOMBRE%TYPE,
+    e_APELLIDO IN EMPLEADO.APELLIDO%TYPE,
+    e_FECHA_INICIO IN EMPLEADO.FECHA_INICIO%TYPE,
+    e_ESTADO IN EMPLEADO.ESTADO%TYPE,
+    e_SALARIO IN EMPLEADO.SALARIO%TYPE,
+    e_EMAIL IN EMPLEADO.EMAIL%TYPE,
+    e_TELEFONO IN EMPLEADO.TELEFONO%TYPE,
+    e_PUESTO IN EMPLEADO.PUESTO%TYPE
+  ) AS
+  BEGIN
+    INSERT INTO EMPLEADO(
+      "ID_EMPLEADO",
+      "NOMBRE",
+      "APELLIDO",
+      "FECHA_INICIO",
+      "ESTADO",
+      "SALARIO",
+      "EMAIL",
+      "TELEFONO",
+      "PUESTO"
+    ) 
+    VALUES (
+      e_ID_EMPLEADO,
+      e_NOMBRE,
+      e_APELLIDO,
+      e_FECHA_INICIO,
+      e_ESTADO,
+      e_SALARIO,
+      e_EMAIL,
+      e_TELEFONO,
+      e_PUESTO
+    );
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('El registro del empleado ' || e_NOMBRE || ' ' || e_APELLIDO || ' ha sido insertado');
+  END InsertEmpleado;
+
+  -- Implementación del procedimiento para modificar el salario de los empleados
+  PROCEDURE UpdateEmpleadoSalario AS
+  BEGIN
+    FOR EMPLEADO IN (SELECT * FROM EMPLEADO) LOOP
+      DECLARE
+        anios_trabajados INT;
+      BEGIN
+        -- Calcular los años
+        SELECT TRUNC(MONTHS_BETWEEN(SYSDATE, EMPLEADO.FECHA_INICIO) / 12) INTO anios_trabajados
+        FROM DUAL;
+
+        -- Incrementar salario si tiene más de 5 años a un 5%
+        IF anios_trabajados > 5 THEN
+          UPDATE EMPLEADO
+          SET SALARIO = SALARIO * 1.05
+          WHERE ID_EMPLEADO = EMPLEADO.ID_EMPLEADO;
+        END IF;
+      END;
+    END LOOP;
+    COMMIT;
+  END UpdateEmpleadoSalario;
+
+  -- Implementación del procedimiento para eliminar empleados inactivos
+  PROCEDURE EliminarEmpleadoInactivo AS
+  BEGIN
+    -- Eliminar empleados inactivos
+    DELETE FROM EMPLEADO WHERE ESTADO = 'Inactivo';
+    
+    -- Confirmar la transacción
+    COMMIT;
+    
+    -- Mostrar mensaje de inactivos
+    DBMS_OUTPUT.PUT_LINE('Empleados inactivos eliminados correctamente.');
+  END EliminarEmpleadoInactivo;
+END EmpleadoPackage;
+
+-- Ejecutar el procedimiento para insertar un empleado
+EXEC EmpleadoPackage.InsertEmpleado(4, 'Lili', 'Valverde', TO_DATE('10/11/2010', 'MM/DD/YYYY'), 'Activo', 50000, 'lil@.com', 5462258, 'Oficinista');
+
+-- Ejecutar el procedimiento para modificar el salario de los empleados
+EXEC EmpleadoPackage.UpdateEmpleadoSalario;
+
+-- Ejecutar el procedimiento para eliminar empleados inactivos
+EXEC EmpleadoPackage.EliminarEmpleadoInactivo;
