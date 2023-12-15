@@ -1056,25 +1056,7 @@ BEGIN
 END;
 
         -- Insertar datos en la tabla RESERVAS**
-BEGIN
-    FOR reserva IN c_reservas
-    LOOP
-        INSERT INTO RESERVAS (ID_RESERVA, FECHA, HORA, ESTADO, ID_CLIENTE)
-        VALUES (reserva.ID_RESERVA, reserva.FECHA, reserva.HORA, reserva.ESTADO, reserva.ID_CLIENTE);
-    END LOOP;
 
-    COMMIT; 
-END;
-
-
-BEGIN
--- Insertar datos en la tabla HORARIO**
-    FOR horario IN c_horario
-    LOOP
-        INSERT INTO HORARIO (ID_HORARIO, DIA, HORA_INICIO, HORA_FIN, CLASE)
-        VALUES (horario.ID_HORARIO, horario.DIA, horario.HORA_INICIO, horario.HORA_FIN, horario.CLASE);
-    END LOOP;
-END;
 
 -- Crear una vista que incluya la informacion de la tabla CLIENTE 1
 CREATE VIEW Vista_Cliente AS
@@ -2096,3 +2078,73 @@ EXEC TriggersPackage.Trg_Actualizar_Fecha_Ultimo_Mov;
 EXEC TriggersPackage.Trg_Renovar_Membresia;
 EXEC TriggersPackage.Trg_Vencimiento_Membresia;
 EXEC TriggersPackage.Trg_Verificar_Reserva;
+
+--Paquete para cursores
+CREATE OR REPLACE PACKAGE CursorPackage AS
+  -- Cursor para la tabla CLIENTE
+  CURSOR c_cliente IS
+    SELECT * FROM CLIENTE;
+
+  -- Cursor para la tabla AUD_CLIENTE
+  CURSOR c_aud_cliente IS
+    SELECT * FROM AUD_CLIENTE;
+
+  -- Cursor para la tabla MEMBRESIAS
+  CURSOR c_membresias IS
+    SELECT * FROM MEMBRESIAS;
+
+  -- Cursor para la tabla EMPLEADO
+  CURSOR c_empleado IS
+    SELECT * FROM EMPLEADO;
+
+  -- Cursor para la tabla AUD_EMPLEADO
+  CURSOR c_aud_empleado IS
+    SELECT * FROM AUD_EMPLEADO;
+
+  -- Cursor para la tabla CLASES
+  CURSOR c_clases IS
+    SELECT * FROM CLASES;
+
+  -- Cursor para la tabla AUD_CLASES
+  CURSOR c_aud_clases IS
+    SELECT * FROM AUD_CLASES;
+
+  -- Cursor para la tabla RESERVAS
+  CURSOR c_reservas IS
+    SELECT * FROM RESERVAS;
+
+  -- Cursor para la tabla AUD_RESERVAS
+  CURSOR c_aud_reservas IS
+    SELECT * FROM AUD_RESERVAS;
+
+  -- Cursor para la tabla HORARIO
+  CURSOR c_horario IS
+    SELECT * FROM HORARIO;
+
+  -- Cursor para la tabla FACTURA
+  CURSOR c_factura IS
+    SELECT * FROM FACTURA;
+
+  -- Cursor para la tabla AUD_FACTURA
+  CURSOR c_aud_factura IS
+    SELECT * FROM AUD_FACTURA;
+
+  -- Cursor para facturas vencidas
+  CURSOR c_facturas_vencidas IS
+    SELECT *
+    FROM FACTURA
+    WHERE FECHA < SYSDATE;
+
+  -- Cursor para reservas pendientes
+  CURSOR c_reservas_pendientes IS
+    SELECT *
+    FROM RESERVAS
+    WHERE ESTADO = 'Pendiente';
+
+  -- Cursor para membresias vencidas
+  CURSOR c_membresias_vencidas IS
+    SELECT *
+    FROM MEMBRESIAS
+    WHERE FECHA_EXPIRACION < SYSDATE;
+END CursorPackage;
+
